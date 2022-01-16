@@ -49,14 +49,28 @@
               <tbody>
                 <!--JS loop for writing table-->
                 <script type="text/javascript">
-                  
-                  for (var dNum = 1; dNum <= 20; dNum++) 
+                  let driverList = ["🟦Ham","🟦Bot", "🟥Ver","🟦Russel","🟥Perez"]
+                  let deltaList = [0,0.01,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+                  let tireList = ["Hard", "Soft", "Int"]
+                  let fastestLap = "🟥Perez";
+                  for (var dNum = 0; dNum < 20; dNum++) 
                   {
+                    
+                    
                     document.write("<tr>");
-                    document.write("<th scope=","row",">",dNum,"</th>");
-                    document.write("<td>HAM</td>");
-                    document.write("<td>Delta</td>");
-                    document.write("<td>Tire</td>");
+                      document.write("<th scope=","row",">",dNum,"</th>");
+                    if (driverList[dNum]==fastestLap){                      
+                      document.write("<td class=","table-success",">",driverList[dNum],"</td>");
+                      document.write("<td class=","table-success",">",deltaList[dNum],"</td>");
+                      document.write("<td class=","table-success",">",tireList[dNum],"</td>");
+                    }
+                    else{
+                      
+                      document.write("<td>",driverList[dNum],"</td>");
+                      document.write("<td>",deltaList[dNum],"</td>");
+                      document.write("<td>",tireList[dNum],"</td>");
+                      }
+                    
                     document.write("</tr>");
                     }
               </script>
