@@ -6,7 +6,7 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
+    
     <title>F1 Tele</title>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
@@ -32,16 +32,86 @@
   </head>
   <body>
     <div class="container">
-      <div class="row">
-        <div class="leftCol">
-          Ranking
+      
+      <div class="row align-items-start bg-primary">
+        <div class="col-3 p-3 border bg-dark text-primary">
+          
+          <p class="fs-1">Scoreboard</p>
+          <p class="fs-6 text-primary">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">
+                    <p class="fs-6 test-primary">
+                      Position
+                    </p>
+                  </th>
+                  <th scope="col">Driver</th>
+     
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>D1</td>
+                </tr>
+                <tr>
+                  <th scope="row">2</th>
+                  <td>D2</td>
+                </tr>
+                <tr>
+                  <th scope="row">3</th>
+                  <td>D3</td>
+                </tr>
+              </tbody>
+            </table>
+        </p>
+          
+            
+           
+          
         </div>
-        <div class="middleCol">
-          Track
+        <div class="col-5 ">
+          <div class="p-3 border bg-dark text-primary">
+            Track
+            
+          </div>
+            
+          
+          
         </div>
-        <div class="rightcol">
-          Column
+        <div class="col-4 p-3 border bg-dark text-primary">
+          
+            stats
+
+          
+          
         </div>
+      </div>
+      <div class = "row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Position</th>
+              <th scope="col">Driver</th>
+ 
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>D1</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>D2</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td colspan="1">Larry the Bird</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
