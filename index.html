@@ -59,13 +59,13 @@
                     
                     document.write("<tr>");
                       document.write("<th scope=","row",">",dNum,"</th>");
+                      //if Driver has fastest lap colors Purple 
                     if (driverList[dNum]==fastestLap){                      
                       document.write("<td class=","table-success",">",driverList[dNum],"</td>");
                       document.write("<td class=","table-success",">",deltaList[dNum],"</td>");
                       document.write("<td class=","table-success",">",tireList[dNum],"</td>");
                     }
-                    else{
-                      
+                    else{                     
                       document.write("<td>",driverList[dNum],"</td>");
                       document.write("<td>",deltaList[dNum],"</td>");
                       document.write("<td>",tireList[dNum],"</td>");
