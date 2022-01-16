@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^16.0.7"
+  },
+  "dependencies": {
+    "f1-2021-udp": "^1.12.5"
   }
 }
