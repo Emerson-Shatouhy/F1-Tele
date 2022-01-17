@@ -50,27 +50,39 @@
                 <script type="text/javascript">
                   let driverList = ["Ham","Bot", "Ver","Russel","Perez"]
                   let deltaList = [0,0.01,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-                  let tireList = [1,2,1,2,1,2,1]
+                  let tireList = [16,17,18,7,8,16,16,16,17,17,18,18]
                   let fastestLap = "Perez";
                   let teamList = ["Merc","Merc","RedBull","Williams","RedBull"]
                   
                   for (var dNum = 0; dNum < 20; dNum++) 
                   {
-                    
-                    
                     document.write("<tr>");
                       document.write("<th scope=","row",">",dNum+1,"</th>");
                       //if Driver has fastest lap colors Purple 
                     if (driverList[dNum]==fastestLap){                      
-                      document.write("<td class=","table-success",">",driverList[dNum],"</td>");
-                      document.write("<td class=","table-success",">",deltaList[dNum],"</td>");
+                      document.write('<td class="table-success">',driverList[dNum],'</td>');
+                      document.write('<td class="table-success">',deltaList[dNum],'</td>');
                       document.write("<td class=","table-success",">");
                       switch(tireList[dNum]){
-                        case 1: 
+                        case 16: 
+                        //soft
                         document.write('<i class="text-danger bi bi-circle-fill"></i>');
                         break;
-                        case 2:
-                        document.write('<i class="text-secondary bi bi-circle-fill"></i>');
+                        case 17:
+                        //medium
+                        document.write('<i class="text-warning bi bi-circle-fill"></i>');
+                        break;
+                        case 18:
+                        //hard
+                        document.write('<i class="text-light bi bi-circle-fill"></i>');
+                        break;
+                        case 7:
+                        //inter-green
+                        document.write('<i class="text-success bi bi-circle-fill"></i>');
+                        break;
+                        case 8:
+                        //wet -blue
+                        document.write('<i class="text-primary bi bi-circle-fill"></i>');
                         break;
                       }
                       document.write("</td>")
@@ -81,11 +93,25 @@
                       document.write("<td>",deltaList[dNum],"</td>");
                       document.write("<td>");
                         switch(tireList[dNum]){
-                        case 1: 
+                        case 16: 
+                        //soft
                         document.write('<i class="text-danger bi bi-circle-fill"></i>');
                         break;
-                        case 2:
-                        document.write('<i class="text-secondary bi bi-circle-fill"></i>');
+                        case 17:
+                        //medium
+                        document.write('<i class="text-warning bi bi-circle-fill"></i>');
+                        break;
+                        case 18:
+                        //hard
+                        document.write('<i class="text-light bi bi-circle-fill"></i>');
+                        break;
+                        case 7:
+                        //inter-green
+                        document.write('<i class="text-success bi bi-circle-fill"></i>');
+                        break;
+                        case 8:
+                        //wet -blue
+                        document.write('<i class="text-primary bi bi-circle-fill"></i>');
                         break;
                       }
                       document.write("</td>");
