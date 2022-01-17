@@ -4,6 +4,13 @@ var curDriver = 0;
 client.on('carTelemetry',function(data) {
     document.getElementById("accelerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
     document.getElementById("brake").style.width = data.m_carTelemetryData[curDriver].m_brake * 100 + "%";
+    document.getElementById("revLights").style.width = data.m_carTelemetryData[curDriver].m_revLightsBitValue;
+    document.getElementById("engineRPM").style.width = data.m_carTelemetryData[curDriver].m_engineRPM;
+    document.getElementById("gear").style.width = data.m_carTelemetryData[curDriver].m_gear;
+    document.getElementById("tyreTemp").style.width = data.m_carTelemetryData[curDriver].m_tyresSurfaceTemperature[4];
+    document.getElementById("speed").style.width = data.m_carTelemetryData[curDriver].m_speed*.6213;
+    document.getElementById("steer").style.width = data.m_carTelemetryData[curDriver].m_steer;
+    
 });
 var run = false;
 client.on('participants', function(data) {
@@ -20,8 +27,13 @@ client.on('participants', function(data) {
     }
 });
 
+
+
 client.on('lapData',function(data) {
     document.getElementById("pos").innerHTML = data.m_lapData[curDriver].m_carPosition;
+    document.getElementById("lap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
+    
+    
 })
 
 
