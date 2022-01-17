@@ -39,7 +39,7 @@
         <div class="col-2">
           <center>
             <h3>Scoreboard</h3>
-            <table class="table text-primary">
+            <table class="table text-primary table-hover ">
               <thead>
                 <tr>
                   <th scope="col">10/20 Laps</th>
@@ -48,10 +48,12 @@
               <tbody>
                 <!--JS loop for writing table-->
                 <script type="text/javascript">
-                  let driverList = ["🟦Ham","🟦Bot", "🟥Ver","🟦Russel","🟥Perez"]
-                  let deltaList = [0,0.01,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-                  let tireList = ["Hard", "Soft", "Int"]
-                  let fastestLap = "🟥Perez";
+                  let driverList = ["Ham","Bot", "Ver","Russel","Perez"]
+                  let deltaList = [0,0.01,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                  let tireList = [1,2,1,2,1,2,1]
+                  let fastestLap = "Perez";
+                  let teamList = ["Merc","Merc","RedBull","Williams","RedBull"]
+                  
                   for (var dNum = 0; dNum < 20; dNum++) 
                   {
                     
@@ -62,7 +64,17 @@
                     if (driverList[dNum]==fastestLap){                      
                       document.write("<td class=","table-success",">",driverList[dNum],"</td>");
                       document.write("<td class=","table-success",">",deltaList[dNum],"</td>");
-                      document.write("<td class=","table-success",">",tireList[dNum],"</td>");
+                      document.write("<td class=","table-success",">");
+                      switch(tireList[dNum]){
+                        case 1: 
+                        document.write('<img src="images/Tire-Hard.png" class="img-thumbnail img-fluid">');
+                        break;
+                        case 2:
+                        document.write('<img src="images/Tire-Soft.png" class="img-thumbnail img-fluid">');
+                        break;
+                      }
+                      document.write("</td>")
+                      //document.write("<td class=","table-success",">",tireList[dNum],"</td>");
                     }
                     else{                     
                       document.write("<td>",driverList[dNum],"</td>");
@@ -91,9 +103,9 @@
             <h3>Telemetry</h3>
           </center>
 
-          <p>Acclerator</p>
+          <p>Accelerator</p>
           <div class="progress">
-            <div id="acclerator" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+            <div id="accelerator" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <br>
           <p>Brake</p>
@@ -108,7 +120,8 @@
         <div class="col" style="border-top: 2px solid rgb(0, 0, 0);">
           <center>
             Other Info Here
-          </center>
+          
+           </center>
         </div>
       </div>
       </div>
