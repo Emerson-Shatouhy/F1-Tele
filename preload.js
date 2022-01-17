@@ -3,15 +3,75 @@ const client= new F1TelemetryClient({port:20770, /*address:'130.215.124.688'*/})
 var curDriver = 0;
 var sessionSet = false
 //EVENTS BELOW
+
+//Motion
+client.on('motion',function(data) {
+    document.getElementById("xPos").innerHTML = data.m_carMotionData[curDriver].m_worldPositionX;
+    document.getElementById("yPos").innerHTML = data.m_carMotionData[curDriver].m_worldPositionY;
+    document.getElementById("zPos").innerHTML = data.m_carMotionData[curDriver].m_worldPositionZ;
+    document.getElementById("xVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityX;
+    document.getElementById("yVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityY;
+    document.getElementById("zVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityZ;
+})
+
+client.on('session',function(data) {
+    document.getElementById("tLap").innerHTML = data.m_totalLaps;
+    var sessionType = 0;
+    switch(data.m_sessionType) {
+        case 0:
+            sessionType = "Unknown";
+            break;
+        case 1:
+            sessionType = "Practice 1";
+            break;
+        case 2:
+            sessionType = "Practice 2";
+            break;
+        case 3:
+            sessionType = "Practice 3";
+            break;
+        case 4:
+            sessionType = "Short Practice";
+            break;
+        case 5:
+            sessionType = "Qualifying 1";
+            break;
+        case 6:
+            sessionType = "Qualifying 2";
+            break;
+        case 7:
+            sessionType = "Qualifying 3";
+            break;
+        case 8:
+            sessionType = "Short Qualifying";
+            break;
+        case 9:
+            sessionType = "One-Shot Qualifying";
+            break;
+        case 10:
+            sessionType = "Race";
+            break;
+        case 11:
+            sessionType = "Time Trial";
+            break;
+        default:
+            sessionType = "Unkown";
+            break;
+        
+    }
+    document.getElementById("sName").innerHTML = sessionType;
+
+})
+
 client.on('carTelemetry',function(data) {
     document.getElementById("accelerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
     document.getElementById("brake").style.width = data.m_carTelemetryData[curDriver].m_brake * 100 + "%";
-    document.getElementById("revLights").style.width = data.m_carTelemetryData[curDriver].m_revLightsBitValue;
-    document.getElementById("engineRPM").style.width = data.m_carTelemetryData[curDriver].m_engineRPM;
-    document.getElementById("gear").style.width = data.m_carTelemetryData[curDriver].m_gear;
-    document.getElementById("tyreTemp").style.width = data.m_carTelemetryData[curDriver].m_tyresSurfaceTemperature[4];
-    document.getElementById("speed").style.width = data.m_carTelemetryData[curDriver].m_speed*.6213;
-    document.getElementById("steer").style.width = data.m_carTelemetryData[curDriver].m_steer;
+    //document.getElementById("revLights").style.width = data.m_carTelemetryData[curDriver].m_revLightsBitValue;
+    document.getElementById("engineRPM").innerHTML = data.m_carTelemetryData[curDriver].m_engineRPM;
+    document.getElementById("gear").innerHTML = data.m_carTelemetryData[curDriver].m_gear;
+    //document.getElementById("tyreTemp").style.width = data.m_carTelemetryData[curDriver].m_tyresSurfaceTemperature[4];
+    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed*.6213;
+    //document.getElementById("steer").style.width = data.m_carTelemetryData[curDriver].m_steer;
     
 });
 var run = false;
@@ -27,12 +87,25 @@ client.on('participants', function(data) {
     }
 });
 
+client.on('carStatus',function(data) {
+    for(i=0;i<20;i++) {
+        driverUpdate(i, data, true);
+    }
+})
 
 
 client.on('lapData',function(data) {
-    document.getElementById("pos").innerHTML = data.m_lapData[curDriver].m_carPosition;
-    document.getElementById("lap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
-    
+    document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
+    document.getElementById("currT").innerHTML = data.m_lapData[curDriver].m_currentLapTimeInMS * 0.001;
+    document.getElementById("lastT").innerHTML = data.m_lapData[curDriver].m_lastLapTimeInMS * 0.001;
+    document.getElementById("sector1T").innerHTML = data.m_lapData[curDriver].m_sector1TimeInMS * 0.001;
+    document.getElementById("sector2T").innerHTML = data.m_lapData[curDriver].m_sector2TimeInMS * 0.001;
+    document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001;
+    document.getElementById("pLTS").innerHTML = data.m_lapData[curDriver].m_pitStopTimerInMS * 0.001;
+    sessionInit(data);
+    for(i=0;i<20;i++) {
+        driverUpdate(i, data, false);
+    }
     
 })
 // Telemetry Update 
@@ -52,6 +125,9 @@ function driverInit(name, i) {
     var cell2 = row.insertCell(1);
     cell.innerHTML = i;
     cell2.innerHTML = name;
+    var cell3 = row.insertCell(2);
+    cell3.id = "DT" + i;
+    cell3.innerHTML = '<i class="bi bi-dash-circle-fill"></i>';
     /* Driver Select Init */
     var dSel = document.getElementById("dSelect");
     var option = document.createElement("option");
@@ -80,9 +156,29 @@ for(i=0;i<20;i++) {
 sessionSet = true;
 }
 
-//Updates the Drivers Current Position
-function driverUpdate(i, data) {
+//Updates the Drivers Current Position and Tire
+function driverUpdate(i, data, tire) {
+    if(tire){
+    switch(data.m_carStatusData[i].m_visualTyreCompound){
+        case 7:
+            document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
+            break;
+        case 8:
+            document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
+            break;
+        case 16:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
+            break;
+        case 17:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
+            break;
+        case 18:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
+            break;
+    }
+    } else {
     document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
+    }
     sortTable();
 }
 
@@ -99,7 +195,6 @@ document.addEventListener('input', function (event) {
 
 
 function sortTable() {
-    console.log("SORT")
     var table, rows, switching, i, x, y, shouldSwitch;
     table = document.getElementById("dTable");
     switching = true;

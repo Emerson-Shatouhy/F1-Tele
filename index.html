@@ -38,13 +38,13 @@
         <!-- Timing Board -->
         <div class="col-2">
           <center>
-            <h3>Scoreboard</h3>
+            <h3 id="sName">Session</h3>
             <table class="table text-primary table-hover " id="dTable">
               <thead>
                 <tr>
                   <th scope="col">
                     <!--lap# display-->
-                    <p>lap: <a id="lap"></a>/20<!--total--></p>
+                    <p>Lap: <a id="cLap">0</a>/<a id="tLap">0</a><!--total--></p>
                   </th>
                 </tr>
               </thead>
@@ -132,8 +132,12 @@
         <div class="col-7" style="border-left: 2px solid rgb(0, 0, 0); border-right: 2px solid rgb(0, 0, 0);">
           <center>
             <h3>Live Map</h3>
-            <br><br><br><br>
           </center>
+            <h4>Location Data Dump</h4>
+            <p1>X: <a id="xPos"></a> </p1><p1>X Accleration: <a id="xVel"></a> </p1><br>
+            <p1>Y: <a id="yPos"></a> </p1><p1>Y Accleration: <a id="yVel"></a> </p1><br>
+            <p1>Z: <a id="zPos"></a> </p1><p1>Z Accleration: <a id="zVel"></a> </p1><br>
+
         </div>
         <!-- Car Telemetry -->
         <div class="col-3">
@@ -143,8 +147,6 @@
           <select id="dSelect"class="form-select" aria-label="Default select example">
             <option>Test</option>
           </select>
-          <!--Display position-->
-          <p>Pos: P<a id="pos">0</a></p>
           <!--Accelerator-->
           <p>Accelerator</p>
           <div class="progress">
@@ -158,12 +160,15 @@
           </div>
           <br>
           <!--Shifting RPM-->
-          <p> RPM: <a id="engineRPM">0</a> <br> Gear: <a id="gear">0</a></p>
-          Rev Lights
-          <div class="progress">
-            <div id="revLights" class="progress-bar bg-primary" role="progressbar" style="width: 0%"  aria-valuemin="0" aria-valuemax="14"></div>
-          </div>
-          
+          <p> RPM: <a id="engineRPM">0</a> <br> Gear: <a id="gear">0</a></p><p> Speed(MPH): <a id="speed">0</a></p>
+          <h4>Timing</h4>
+          <p>Current Lap Time: <a id="currT">0</a></p>
+          <p>Last Lap Time: <a id="lastT">0</a></p>
+          <p>Sector 1: <a id="sector1T">0</a></p>
+          <p>Sector 2: <a id="sector2T">0</a></p>
+          <h4>Pit Info</h4>
+          <p>Time in Pit Lane: <a id="pLTF">0</a></p>
+          <p>Time in Pit Stop: <a id="pLTS">0</a></p>
         </div>
       </div>
       <!-- Lower Section -->
