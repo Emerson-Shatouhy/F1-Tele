@@ -1,8 +1,8 @@
 const { F1TelemetryClient } = require('f1-2021-udp');
-const client= new F1TelemetryClient({port:20770});
+const client= new F1TelemetryClient({port:20770, address:'130.215.124.68'});
 var curDriver = 0;
 client.on('carTelemetry',function(data) {
-    document.getElementById("acclerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
+    document.getElementById("accelerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
     document.getElementById("brake").style.width = data.m_carTelemetryData[curDriver].m_brake * 100 + "%";
 });
 var run = false;

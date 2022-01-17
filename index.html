@@ -67,10 +67,10 @@
                       document.write("<td class=","table-success",">");
                       switch(tireList[dNum]){
                         case 1: 
-                        document.write('<img src="images/Tire-Hard.png" class="img-thumbnail img-fluid">');
+                        document.write('<i class="text-danger bi bi-circle-fill"></i>');
                         break;
                         case 2:
-                        document.write('<img src="images/Tire-Soft.png" class="img-thumbnail img-fluid">');
+                        document.write('<i class="text-secondary bi bi-circle-fill"></i>');
                         break;
                       }
                       document.write("</td>")
@@ -79,7 +79,16 @@
                     else{                     
                       document.write("<td>",driverList[dNum],"</td>");
                       document.write("<td>",deltaList[dNum],"</td>");
-                      document.write("<td>",tireList[dNum],"</td>");
+                      document.write("<td>");
+                        switch(tireList[dNum]){
+                        case 1: 
+                        document.write('<i class="text-danger bi bi-circle-fill"></i>');
+                        break;
+                        case 2:
+                        document.write('<i class="text-secondary bi bi-circle-fill"></i>');
+                        break;
+                      }
+                      document.write("</td>");
                       }
                     
                     document.write("</tr>");
