@@ -44,7 +44,7 @@
                 <tr>
                   <th scope="col">
                     <!--lap# display-->
-                    <p>lap: <a id="lap">/20<!--total--></p>
+                    <p>lap: <a id="lap"></a>/20<!--total--></p>
                   </th>
                 </tr>
               </thead>
@@ -143,16 +143,27 @@
           <select id="dSelect"class="form-select" aria-label="Default select example">
             <option>Test</option>
           </select>
+          <!--Display position-->
+          <p>Pos: P<a id="pos">0</a></p>
+          <!--Accelerator-->
           <p>Accelerator</p>
           <div class="progress">
             <div id="accelerator" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <br>
+          <!--Brake-->
           <p>Brake</p>
           <div class="progress">
             <div id="brake" class="progress-bar bg-danger" role="progressbar" style="width: 0%"  aria-valuemin="0" aria-valuemax="100"></div>
           </div>
-          <p>Pos: P<a id="pos">0</a></p>
+          <br>
+          <!--Shifting RPM-->
+          <p> RPM: <a id="engineRPM">0</a> <br> Gear: <a id="gear">0</a></p>
+          Rev Lights
+          <div class="progress">
+            <div id="revLights" class="progress-bar bg-primary" role="progressbar" style="width: 0%"  aria-valuemin="0" aria-valuemax="14"></div>
+          </div>
+          
         </div>
       </div>
       <!-- Lower Section -->
