@@ -1,7 +1,8 @@
 const { F1TelemetryClient } = require('f1-2021-udp');
-const client= new F1TelemetryClient({port:20770, /*address:'130.215.124.688'*/});
+const client= new F1TelemetryClient({port:20770, address:'130.215.225.93'});
 var curDriver = 0;
-var sessionSet = false
+var sessionSet = false;
+var run = false;
 //EVENTS BELOW
 
 //Motion
@@ -17,6 +18,7 @@ client.on('motion',function(data) {
 client.on('session',function(data) {
     document.getElementById("tLap").innerHTML = data.m_totalLaps;
     var sessionType = 0;
+    var oldSessionType;
     switch(data.m_sessionType) {
         case 0:
             sessionType = "Unknown";
@@ -59,7 +61,14 @@ client.on('session',function(data) {
             break;
         
     }
-    document.getElementById("sName").innerHTML = sessionType;
+    /*if(oldSessionType = sessionType){
+        return;
+    } else {*/
+        document.getElementById("sName").innerHTML = sessionType;
+        oldSessionType = sessionType;
+        sessionSet  = false;
+        //run = false;
+    //}
 
 })
 
@@ -74,7 +83,6 @@ client.on('carTelemetry',function(data) {
     //document.getElementById("steer").style.width = data.m_carTelemetryData[curDriver].m_steer;
     
 });
-var run = false;
 client.on('participants', function(data) {
     if(run) { return;
     } else {
@@ -96,8 +104,8 @@ client.on('carStatus',function(data) {
 
 client.on('lapData',function(data) {
     document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
-    document.getElementById("currT").innerHTML = data.m_lapData[curDriver].m_currentLapTimeInMS * 0.001;
-    document.getElementById("lastT").innerHTML = data.m_lapData[curDriver].m_lastLapTimeInMS * 0.001;
+    document.getElementById("currT").innerHTML = timeConvert(data.m_lapData[curDriver].m_currentLapTimeInMS);
+    document.getElementById("lastT").innerHTML = timeConvert(data.m_lapData[curDriver].m_lastLapTimeInMS);
     document.getElementById("sector1T").innerHTML = data.m_lapData[curDriver].m_sector1TimeInMS * 0.001;
     document.getElementById("sector2T").innerHTML = data.m_lapData[curDriver].m_sector2TimeInMS * 0.001;
     document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001;
@@ -106,7 +114,6 @@ client.on('lapData',function(data) {
     for(i=0;i<20;i++) {
         driverUpdate(i, data, false);
     }
-    
 })
 // Telemetry Update 
 function teleUpdate(data){
@@ -124,10 +131,14 @@ function driverInit(name, i) {
     cell.id = "D" + i;
     var cell2 = row.insertCell(1);
     cell.innerHTML = i;
-    cell2.innerHTML = name;
+    cell2.innerHTML = '<i class="bi bi-file-fill"></i>' + name;
     var cell3 = row.insertCell(2);
     cell3.id = "DT" + i;
     cell3.innerHTML = '<i class="bi bi-dash-circle-fill"></i>';
+    var cell4 = row.insertCell(3);
+    cell4.id = "TA" + i;
+    cell4.innerHTML = '0';
+
     /* Driver Select Init */
     var dSel = document.getElementById("dSelect");
     var option = document.createElement("option");
@@ -145,7 +156,7 @@ if(sessionSet){
     //Starting Position Init
     //EMERSON WAS LAZY HERE FIX THIS LATER
 for(i=0;i<20;i++) {
-    document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_gridPosition;
+    //document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_gridPosition;
 }
 //Session Info Other
 
@@ -176,6 +187,7 @@ function driverUpdate(i, data, tire) {
             document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
             break;
     }
+    document.getElementById("TA" + i).innerHTML =data.m_carStatusData[i].m_tyresAgeLaps;
     } else {
     document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
     }
@@ -193,7 +205,7 @@ document.addEventListener('input', function (event) {
 
 
 
-
+//None Event
 function sortTable() {
     var table, rows, switching, i, x, y, shouldSwitch;
     table = document.getElementById("dTable");
@@ -228,4 +240,11 @@ function sortTable() {
       }
     }
   }
+function timeConvert(time){
+    var seconds = Math.floor(time / 600);  
+    var minutes = Math.floor(time / 60000);
+    var mSeconds = time % 60;
+    return minutes + ":"+ seconds + ":" + mSeconds; 
+}
+
 client.start();
