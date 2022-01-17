@@ -46,60 +46,34 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td scope="row">1</t>
-                  <td><i class="bi bi-file-fill" style="color: chartreuse;"></i>HAM</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>VER</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>BOT</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">4</th>
-                  <td>HAM</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">5</th>
-                  <td>VER</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">6</th>
-                  <td>BOT</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">7</th>
-                  <td>HAM</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">8</th>
-                  <td>VER</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
-                <tr>
-                  <th scope="row">9</th>
-                  <td>BOT</td>
-                  <td>Delta</td>
-                  <td>Tire</td>
-                </tr>
+                <!--JS loop for writing table-->
+                <script type="text/javascript">
+                  let driverList = ["🟦Ham","🟦Bot", "🟥Ver","🟦Russel","🟥Perez"]
+                  let deltaList = [0,0.01,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+                  let tireList = ["Hard", "Soft", "Int"]
+                  let fastestLap = "🟥Perez";
+                  for (var dNum = 0; dNum < 20; dNum++) 
+                  {
+                    
+                    
+                    document.write("<tr>");
+                      document.write("<th scope=","row",">",dNum+1,"</th>");
+                      //if Driver has fastest lap colors Purple 
+                    if (driverList[dNum]==fastestLap){                      
+                      document.write("<td class=","table-success",">",driverList[dNum],"</td>");
+                      document.write("<td class=","table-success",">",deltaList[dNum],"</td>");
+                      document.write("<td class=","table-success",">",tireList[dNum],"</td>");
+                    }
+                    else{                     
+                      document.write("<td>",driverList[dNum],"</td>");
+                      document.write("<td>",deltaList[dNum],"</td>");
+                      document.write("<td>",tireList[dNum],"</td>");
+                      }
+                    
+                    document.write("</tr>");
+                    }
+              </script>
+                <!--end Script-->         
               </tbody>
             </table>
           </center>
@@ -116,6 +90,7 @@
           <center>
             <h3>Telemetry</h3>
           </center>
+
           <p>Acclerator</p>
           <div class="progress">
             <div id="acclerator" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
@@ -125,6 +100,7 @@
           <div class="progress">
             <div id="brake" class="progress-bar bg-danger" role="progressbar" style="width: 0%"  aria-valuemin="0" aria-valuemax="100"></div>
           </div>
+
         </div>
       </div>
       <!-- Lower Section -->
