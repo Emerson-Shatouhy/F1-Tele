@@ -42,7 +42,10 @@
             <table class="table text-primary table-hover " id="dTable">
               <thead>
                 <tr>
-                  <th scope="col">10/20 Laps</th>
+                  <th scope="col">
+                    <!--lap# display-->
+                    <p>lap: <a id="lap"></a>/20<!--total--></p>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -50,27 +53,39 @@
                 <!-- <script type="text/javascript">
                   let driverList = ["Ham","Bot", "Ver","Russel","Perez"]
                   let deltaList = [0,0.01,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-                  let tireList = [1,2,1,2,1,2,1]
+                  let tireList = [16,17,18,7,8,16,16,16,17,17,18,18]
                   let fastestLap = "Perez";
                   let teamList = ["Merc","Merc","RedBull","Williams","RedBull"]
                   
                   for (var dNum = 0; dNum < 20; dNum++) 
                   {
-                    
-                    
                     document.write("<tr>");
                       document.write("<th scope=","row",">",dNum+1,"</th>");
                       //if Driver has fastest lap colors Purple 
                     if (driverList[dNum]==fastestLap){                      
-                      document.write("<td class=","table-success",">",driverList[dNum],"</td>");
-                      document.write("<td class=","table-success",">",deltaList[dNum],"</td>");
+                      document.write('<td class="table-success">',driverList[dNum],'</td>');
+                      document.write('<td class="table-success">',deltaList[dNum],'</td>');
                       document.write("<td class=","table-success",">");
                       switch(tireList[dNum]){
-                        case 1: 
+                        case 16: 
+                        //soft
                         document.write('<i class="text-danger bi bi-circle-fill"></i>');
                         break;
-                        case 2:
-                        document.write('<i class="text-secondary bi bi-circle-fill"></i>');
+                        case 17:
+                        //medium
+                        document.write('<i class="text-warning bi bi-circle-fill"></i>');
+                        break;
+                        case 18:
+                        //hard
+                        document.write('<i class="text-light bi bi-circle-fill"></i>');
+                        break;
+                        case 7:
+                        //inter-green
+                        document.write('<i class="text-success bi bi-circle-fill"></i>');
+                        break;
+                        case 8:
+                        //wet -blue
+                        document.write('<i class="text-primary bi bi-circle-fill"></i>');
                         break;
                       }
                       document.write("</td>")
@@ -81,11 +96,25 @@
                       document.write("<td>",deltaList[dNum],"</td>");
                       document.write("<td>");
                         switch(tireList[dNum]){
-                        case 1: 
+                        case 16: 
+                        //soft
                         document.write('<i class="text-danger bi bi-circle-fill"></i>');
                         break;
-                        case 2:
-                        document.write('<i class="text-secondary bi bi-circle-fill"></i>');
+                        case 17:
+                        //medium
+                        document.write('<i class="text-warning bi bi-circle-fill"></i>');
+                        break;
+                        case 18:
+                        //hard
+                        document.write('<i class="text-light bi bi-circle-fill"></i>');
+                        break;
+                        case 7:
+                        //inter-green
+                        document.write('<i class="text-success bi bi-circle-fill"></i>');
+                        break;
+                        case 8:
+                        //wet -blue
+                        document.write('<i class="text-primary bi bi-circle-fill"></i>');
                         break;
                       }
                       document.write("</td>");
@@ -114,16 +143,27 @@
           <select id="dSelect"class="form-select" aria-label="Default select example">
             <option>Test</option>
           </select>
+          <!--Display position-->
+          <p>Pos: P<a id="pos">0</a></p>
+          <!--Accelerator-->
           <p>Accelerator</p>
           <div class="progress">
             <div id="accelerator" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <br>
+          <!--Brake-->
           <p>Brake</p>
           <div class="progress">
             <div id="brake" class="progress-bar bg-danger" role="progressbar" style="width: 0%"  aria-valuemin="0" aria-valuemax="100"></div>
           </div>
-          <p>Pos: P<a id="pos">0</a></p>
+          <br>
+          <!--Shifting RPM-->
+          <p> RPM: <a id="engineRPM">0</a> <br> Gear: <a id="gear">0</a></p>
+          Rev Lights
+          <div class="progress">
+            <div id="revLights" class="progress-bar bg-primary" role="progressbar" style="width: 0%"  aria-valuemin="0" aria-valuemax="14"></div>
+          </div>
+          
         </div>
       </div>
       <!-- Lower Section -->
