@@ -20,8 +20,12 @@ client.on('participants', function(data) {
     }
 });
 
+
+
 client.on('lapData',function(data) {
     document.getElementById("pos").innerHTML = data.m_lapData[curDriver].m_carPosition;
+    document.getElementById("lap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
+    
 })
 
 
