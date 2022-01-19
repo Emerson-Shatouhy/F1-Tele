@@ -6,14 +6,14 @@ var run = false;
 //EVENTS BELOW
 
 //Motion
-client.on('motion',function(data) {
+/*client.on('motion',function(data) {
     document.getElementById("xPos").innerHTML = data.m_carMotionData[curDriver].m_worldPositionX;
     document.getElementById("yPos").innerHTML = data.m_carMotionData[curDriver].m_worldPositionY;
     document.getElementById("zPos").innerHTML = data.m_carMotionData[curDriver].m_worldPositionZ;
     document.getElementById("xVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityX;
     document.getElementById("yVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityY;
     document.getElementById("zVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityZ;
-})
+})*/
 
 client.on('session',function(data) {
     document.getElementById("tLap").innerHTML = data.m_totalLaps;
@@ -79,12 +79,12 @@ client.on('carTelemetry',function(data) {
     document.getElementById("engineRPM").innerHTML = data.m_carTelemetryData[curDriver].m_engineRPM;
     document.getElementById("gear").innerHTML = data.m_carTelemetryData[curDriver].m_gear;
     //document.getElementById("tyreTemp").style.width = data.m_carTelemetryData[curDriver].m_tyresSurfaceTemperature[4];
-    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed*.6213;
+    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed*.6213.toPrecision(2);
     //document.getElementById("steer").style.width = data.m_carTelemetryData[curDriver].m_steer;
     
 });
 client.on('participants', function(data) {
-    if(run) { return;
+   if(run) { return;
     } else {
      for(i=0;i<data.m_participants.length;i++) {
         if(data.m_participants[i].m_name.length > 0) {
@@ -95,9 +95,12 @@ client.on('participants', function(data) {
     }
 });
 
+
+
+
 client.on('carStatus',function(data) {
     for(i=0;i<20;i++) {
-        driverUpdate(i, data, true);
+        driverUpdate(i, data, "tire");
     }
 })
 
@@ -106,13 +109,14 @@ client.on('lapData',function(data) {
     document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
     document.getElementById("currT").innerHTML = timeConvert(data.m_lapData[curDriver].m_currentLapTimeInMS);
     document.getElementById("lastT").innerHTML = timeConvert(data.m_lapData[curDriver].m_lastLapTimeInMS);
-    document.getElementById("sector1T").innerHTML = data.m_lapData[curDriver].m_sector1TimeInMS * 0.001;
-    document.getElementById("sector2T").innerHTML = data.m_lapData[curDriver].m_sector2TimeInMS * 0.001;
-    document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001;
-    document.getElementById("pLTS").innerHTML = data.m_lapData[curDriver].m_pitStopTimerInMS * 0.001;
+    document.getElementById("sector1T").innerHTML = data.m_lapData[curDriver].m_sector1TimeInMS * 0.001.toPrecision(2);
+    document.getElementById("sector2T").innerHTML = data.m_lapData[curDriver].m_sector2TimeInMS * 0.001.toPrecision(2);
+    document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001.toPrecision(2);
+    document.getElementById("pLTS").innerHTML = data.m_lapData[curDriver].m_pitStopTimerInMS * 0.001.toPrecision(2);
     sessionInit(data);
     for(i=0;i<20;i++) {
-        driverUpdate(i, data, false);
+        driverUpdate(i, data, "pos");
+        //driverUpdate(i, data, "stat");
     }
 })
 // Telemetry Update 
@@ -168,28 +172,30 @@ sessionSet = true;
 }
 
 //Updates the Drivers Current Position and Tire
-function driverUpdate(i, data, tire) {
-    if(tire){
-    switch(data.m_carStatusData[i].m_visualTyreCompound){
-        case 7:
-            document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
+function driverUpdate(i, data, type) {
+    switch(type){
+       case "tire":
+        switch(data.m_carStatusData[i].m_visualTyreCompound){
+            case 7:
+                document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
+                break;
+            case 8:
+                document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
+                break;
+            case 16:
+                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
+                break;
+            case 17:
+                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
+                break;
+            case 18:
+                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
+                break;
+        }
+        break;
+        case "pos":
+            document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
             break;
-        case 8:
-            document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
-            break;
-        case 16:
-            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
-            break;
-        case 17:
-            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
-            break;
-        case 18:
-            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
-            break;
-    }
-    document.getElementById("TA" + i).innerHTML =data.m_carStatusData[i].m_tyresAgeLaps;
-    } else {
-    document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
     }
     sortTable();
 }
@@ -241,10 +247,13 @@ function sortTable() {
     }
   }
 function timeConvert(time){
-    var seconds = Math.floor(time / 600);  
-    var minutes = Math.floor(time / 60000);
+    var seconds = Math.floor(time / 1000);
+    var minutes = Math.floor(seconds / 60);
     var mSeconds = time % 60;
-    return minutes + ":"+ seconds + ":" + mSeconds; 
+    if (seconds > 60){
+        var seconds = seconds -60;
+    }  
+    return minutes + ":"+ seconds + "." + mSeconds.toPrecision(2); 
 }
 
 client.start();
