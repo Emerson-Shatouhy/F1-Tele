@@ -1,5 +1,5 @@
 const { F1TelemetryClient } = require('f1-2021-udp');
-const client= new F1TelemetryClient({port:20770, address:'130.215.225.93'});
+const client= new F1TelemetryClient({port:20770, address:/*'130.215.225.93'*/'130.215.124.68'});
 var curDriver = 0;
 var lobbyInit = false;
 var driverSet = false;
@@ -7,12 +7,58 @@ var activeDriverID = [];
 
 // motion 
 client.on('motion',function(data) {
-    
+    //getTireSlip(data);
+    //document.getElementById("tSlip").innerHTML = (100/4*(data.m_wheelSlip[1]  + data.m_wheelSlip[2] + data.m_wheelSlip[3] + data.m_wheelSlip[0])).toFixed(1) +"%";
+    //FIX
 })
 
 // session 
 client.on('session',function(data) {
-    
+    document.getElementById("tLap").innerHTML = data.m_totalLaps;
+    var sessionType = 0;
+    switch(data.m_sessionType) {
+        case 0:
+            sessionType = "Unknown";
+            break;
+        case 1:
+            sessionType = "Practice 1";
+            break;
+        case 2:
+            sessionType = "Practice 2";
+            break;
+        case 3:
+            sessionType = "Practice 3";
+            break;
+        case 4:
+            sessionType = "Short Practice";
+            break;
+        case 5:
+            sessionType = "Qualifying 1";
+            break;
+        case 6:
+            sessionType = "Qualifying 2";
+            break;
+        case 7:
+            sessionType = "Qualifying 3";
+            break;
+        case 8:
+            sessionType = "Short Qualifying";
+            break;
+        case 9:
+            sessionType = "One-Shot Qualifying";
+            break;
+        case 10:
+            sessionType = "Race";
+            break;
+        case 11:
+            sessionType = "Time Trial";
+            break;
+        default:
+            sessionType = "Unknown";
+            break;
+        
+    }
+    document.getElementById("sName").innerHTML = sessionType;
 })
 
 // lap data 
@@ -21,8 +67,10 @@ client.on('lapData',function(data) {
     for(var i = 0; i < 20; i++){
         if(isDriverRunning(i))
         updatePos(data, i);
+        updateLapData(data,i);
     }
     }
+    
 })
 
 // event 
@@ -47,7 +95,12 @@ client.on('carSetups',function(data) {
 
 // car telemetry 
 client.on('carTelemetry',function(data) {
-
+    if(driverSet){
+        for(var i = 0; i < 20; i++){
+            if(isDriverRunning(i))
+            updateCarTelemetry(data,i);
+        }
+        }    
 })
 
 // car status 
@@ -71,7 +124,11 @@ client.on('lobbyInfo',function(data) {
 
 // car damage 
 client.on('carDamage',function(data) {
-    
+    tWearAvg = ((data.m_carDamageData[curDriver].m_tyresWear[0] + data.m_carDamageData[curDriver].m_tyresWear[1]+data.m_carDamageData[curDriver].m_tyresWear[2]+data.m_carDamageData[curDriver].m_tyresWear[3])/4).toFixed(1);
+    document.getElementById("tWearMax").innerHTML =data.m_carDamageData[curDriver].m_tyresWear[0];
+  //document.getElementById("tWearMax").innerHTML = Math.max(data.m_carDamageData[curDriver].m_tyresWear[0], data.m_carDamageData[curDriver].m_tyresWear[1],data.m_carDamageData[curDriver].m_tyresWear[2],data.m_carDamageData[curDriver].m_tyresWear[3]).toFixed(1);
+  document.getElementById("tWearAvg").innerHTML = tWearAvg;
+  document.getElementById("tWearPerLap").innerHTML = tWearAvg / tAge;
 })
 
 // session history
@@ -101,6 +158,15 @@ function driverInit(name, i){
     var cell4 = row.insertCell(3);
     cell4.id = "TA" + i;
     cell4.innerHTML = '0';
+    
+    var cell5 = row.insertCell(4);
+    cell5.id = "DD" + i;
+    if(i==curDriver){
+        cell5.innerHTML = "--:--:--";
+    }
+    else{
+        cell5.innerHTML = deltaBetween(curDriver,i);
+    }
 
     /* Driver Select Init */
     var dSel = document.getElementById("dSelect");
@@ -110,12 +176,29 @@ function driverInit(name, i){
         dSel.add(option);
     lobbyInit = true;
 }
-
+//Updates lap data 
+function updateLapData(data,i){
+    document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
+    document.getElementById("currT").innerHTML = timeConvert(data.m_lapData[curDriver].m_currentLapTimeInMS);
+    document.getElementById("lastT").innerHTML = timeConvert(data.m_lapData[curDriver].m_lastLapTimeInMS);
+    document.getElementById("sector1T").innerHTML = data.m_lapData[curDriver].m_sector1TimeInMS * 0.001.toPrecision(2);
+    document.getElementById("sector2T").innerHTML = data.m_lapData[curDriver].m_sector2TimeInMS * 0.001.toPrecision(2);
+    document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001.toPrecision(2);
+    document.getElementById("pLTS").innerHTML = data.m_lapData[curDriver].m_pitStopTimerInMS * 0.001.toPrecision(2);
+}
+//updates Car Telemetry data
+function updateCarTelemetry(data,i){
+    document.getElementById("accelerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
+    document.getElementById("brake").style.width = data.m_carTelemetryData[curDriver].m_brake * 100 + "%";
+    document.getElementById("engineRPM").innerHTML = data.m_carTelemetryData[curDriver].m_engineRPM;
+    document.getElementById("gear").innerHTML = data.m_carTelemetryData[curDriver].m_gear;
+    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed*.6213.toPrecision(2);
+}
 /* Updates Tire Information for each driver */
 function tireSet(data, i){
     var tire = document.getElementById("TA" + i);
-    tire.innerHTML = deltaBetween(i, i+1);
-    //tire.innerHTML = data.m_carStatusData[i].m_tyresAgeLaps;
+    tAge= data.m_carStatusData[i].m_tyresAgeLaps; 
+    tire.innerHTML = tAge;
     switch(data.m_carStatusData[i].m_visualTyreCompound){
             case 7:
                 document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
@@ -140,6 +223,12 @@ function tireSet(data, i){
 function updatePos(data, i){
     //Delta Check
     distanceReceived(i, data.m_lapData[i].m_totalDistance, data.m_lapData[i].m_currentLapTimeInMS);
+    if(i==curDriver){
+        document.getElementById("DD" + i).innerHTML = "--:--:--";
+    }
+    else{
+        document.getElementById("DD" + i).innerHTML = deltaBetween(curDriver,i);
+    }
     switch(data.m_lapData[i].m_resultStatus){
         case 0:
             document.getElementById("D" + i).innerHTML = "NON";
@@ -150,9 +239,6 @@ function updatePos(data, i){
             removeActiveDriver(i);
             break;
         case 2:
-            document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
-            sortTable();
-            break;
         case 3:
             document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
             sortTable();
@@ -223,8 +309,16 @@ function sortTable() {
     }
   }
 
-
-
+  //Converts time from MS -> M:S:MS
+  function timeConvert(time){
+    var seconds = Math.floor(time / 1000);
+    var minutes = Math.floor(seconds / 60);
+    var mSeconds = time % 60;
+    if (seconds > 60){
+        var seconds = seconds -60;
+    }  
+    return minutes + ":"+ seconds + "." + mSeconds.toPrecision(2); 
+}
   //Delta Update Code Below
   const DISTANCE_INTERVAL = 100.0; // How often the program should update delta calculations
   // What the upper bound on distance % DISTANCE_INTERVAL will be e.g. how close this distance should be to the interval
