@@ -84,7 +84,7 @@ client.on('carTelemetry',function(data) {
     
 });
 client.on('participants', function(data) {
-   if(run) { return;
+   if(run) {
     } else {
      for(i=0;i<data.m_participants.length;i++) {
         if(data.m_participants[i].m_name.length > 0) {

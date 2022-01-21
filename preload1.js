@@ -1,5 +1,6 @@
-const { F1TelemetryClient } = require('f1-2021-udp');
-const client= new F1TelemetryClient({port:20770, address:/*'130.215.225.93'*/'130.215.124.68'});
+const {deltaBetween, distanceReceived} = require('./DeltaCalculation/DeltaCalculator');
+const {F1TelemetryClient} = require('f1-2021-udp');
+const client = new F1TelemetryClient({port: 20770, address:/*'130.215.225.93'*/'130.215.124.68'});
 var curDriver = 0;
 var tAge = 1;
 var lobbyInit = false;
@@ -10,17 +11,17 @@ var teamIds = [];
 runTests();//Testing case should run once REMOVE LATER
 
 // motion 
-client.on('motion',function(data) {
+client.on('motion', function (data) {
     //getTireSlip(data);
     //document.getElementById("tSlip").innerHTML = (100/4*(data.m_wheelSlip[1]  + data.m_wheelSlip[2] + data.m_wheelSlip[3] + data.m_wheelSlip[0])).toFixed(1) +"%";
     //FIX
 })
 
 // session 
-client.on('session',function(data) {
+client.on('session', function (data) {
     document.getElementById("tLap").innerHTML = data.m_totalLaps;
     var sessionType = 0;
-    switch(data.m_sessionType) {
+    switch (data.m_sessionType) {
         case 0:
             sessionType = "Unknown";
             break;
@@ -60,33 +61,35 @@ client.on('session',function(data) {
         default:
             sessionType = "Unknown";
             break;
-        
+
     }
     document.getElementById("sName").innerHTML = sessionType;
 })
 
 // lap data 
+
 client.on('lapData',function(data) {
     if(driverSet){
     updateCurrentDriver();
     for(var i = 0; i < 20; i++){
-        if(isDriverRunning(i))
+        if(isDriverRunning(i)){
         updatePos(data, i);
         updateLapData(data,i);
+        }
     }
     }
-    
+
 })
 
 // event 
-client.on('event',function(data) {
-    
+client.on('event', function (data) {
+
 })
 
 // participants 
-client.on('participants',function(data) {
-    for(var i = 0; i < 20; i++){
-        if(!driverSet){
+client.on('participants', function (data) {
+    for (var i = 0; i < 20; i++) {
+        if (!driverSet) {
             driverInit(data.m_participants[i].m_name, i);
             
         }
@@ -95,36 +98,37 @@ client.on('participants',function(data) {
 })
 
 // car setup 
-client.on('carSetups',function(data) {
-    
+client.on('carSetups', function (data) {
+
 })
 
 // car telemetry 
-client.on('carTelemetry',function(data) {
-    if(driverSet){
-        for(var i = 0; i < 20; i++){
-            if(isDriverRunning(i))
-            updateCarTelemetry(data,i);
+client.on('carTelemetry', function (data) {
+    if (driverSet) {
+        for (var i = 0; i < 20; i++) {
+            if (isDriverRunning(i))
+                updateCarTelemetry(data, i);
         }
-        }    
+    }
 })
 
 // car status 
-client.on('carStatus',function(data) {
-    if(lobbyInit){
-    for(var i = 0; i < 20; i++){
-        if(isDriverRunning(i))
-            tireSet(data, i);
+client.on('carStatus', function (data) {
+    if (lobbyInit) {
+        for (var i = 0; i < 20; i++) {
+            if (isDriverRunning(i))
+                tireSet(data, i);
+        }
     }
-}
 })
 
 // final classification 
-client.on('finalClassification',function(data) {
-    
+client.on('finalClassification', function (data) {
+
 })
 
 // lobby info 
+
 client.on('lobbyInfo',function(data) {
     if (!lobbyInit){
         setTeamIds();
@@ -141,11 +145,12 @@ client.on('carDamage',function(data) {
             }
         }
     }
+
 })
 
 // session history
-client.on('sessionHistory',function(data) {
-    
+client.on('sessionHistory', function (data) {
+
 })
 
 client.start();
@@ -158,7 +163,7 @@ document.addEventListener('input', function (event) {
     curDriver= id;
 }, false);
 /* Setups Driver info */
-function driverInit(name, i){
+function driverInit(name, i) {
     activeDriverID.push(i);
     var table = document.getElementById("dTable");
     var tbody = document.getElementById('dTable').getElementsByTagName('tbody')[0];
@@ -179,21 +184,21 @@ function driverInit(name, i){
     cell4.innerHTML = '0';
     var cell5 = row.insertCell(4);
     cell5.id = "DD" + i;
-    if(i==curDriver){
+    if (i == curDriver) {
         cell5.innerHTML = "--:--:--";
-    }
-    else{
-        cell5.innerHTML = deltaBetween(curDriver,i);
+    } else {
+        cell5.innerHTML = deltaBetween(curDriver, i);
     }
 
     /* Driver Select Init */
     var dSel = document.getElementById("dSelect");
     var option = document.createElement("option");
     option.text = name;
-        option.id = i;
-        dSel.add(option);
+    option.id = i;
+    dSel.add(option);
     lobbyInit = true;
 }
+
 //sets Driver Team Color
 function getTeamColor(i){
     var tColor = ["#00D2BE","#DC0000","#0600EF","#005AFF","#006F62","#0090FF","#2B4562","#FFFFFF","#FF8700","#900000"]
@@ -209,6 +214,7 @@ function setTeamIds(data,i){
 }
 //Updates lap data 
 function updateLapData(data,i){
+
     document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
     document.getElementById("currT").innerHTML = timeConvert(data.m_lapData[curDriver].m_currentLapTimeInMS);
     document.getElementById("lastT").innerHTML = timeConvert(data.m_lapData[curDriver].m_lastLapTimeInMS);
@@ -217,14 +223,16 @@ function updateLapData(data,i){
     document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001.toPrecision(2);
     document.getElementById("pLTS").innerHTML = data.m_lapData[curDriver].m_pitStopTimerInMS * 0.001.toPrecision(2);
 }
+
 //updates Car Telemetry data
-function updateCarTelemetry(data,i){
+function updateCarTelemetry(data, i) {
     document.getElementById("accelerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
     document.getElementById("brake").style.width = data.m_carTelemetryData[curDriver].m_brake * 100 + "%";
     document.getElementById("engineRPM").innerHTML = data.m_carTelemetryData[curDriver].m_engineRPM;
     document.getElementById("gear").innerHTML = data.m_carTelemetryData[curDriver].m_gear;
-    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed*.6213.toPrecision(2);
+    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed * .6213.toPrecision(2);
 }
+
 //updates Tire damage data
 function updateTireDamage(data, i){
     tWearAvg = ((data.m_carDamageData[curDriver].m_tyresWear[0] + data.m_carDamageData[curDriver].m_tyresWear[1]+data.m_carDamageData[curDriver].m_tyresWear[2]+data.m_carDamageData[curDriver].m_tyresWear[3])/4).toFixed(1);
@@ -240,42 +248,42 @@ function updateCurrentDriver(){
     document.getElementById("currentDriver").innerHTML = curDriver;
 
 }
-/* Updates Tire Information for each driver */
-function tireSet(data, i){
-    var tire = document.getElementById("TA" + i);
-    tAge= data.m_carStatusData[i].m_tyresAgeLaps; 
-    tire.innerHTML = tAge;
-    switch(data.m_carStatusData[i].m_visualTyreCompound){
-            case 7:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
-                break;
-            case 8:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
-                break;
-            case 16:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
-                break;
-            case 17:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
-                break;
-            case 18:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
-                break;
-        }
 
+/* Updates Tire Information for each driver */
+function tireSet(data, i) {
+    var tire = document.getElementById("TA" + i);
+    tAge = data.m_carStatusData[i].m_tyresAgeLaps;
+    tire.innerHTML = tAge;
+    switch (data.m_carStatusData[i].m_visualTyreCompound) {
+        case 7:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
+            break;
+        case 8:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
+            break;
+        case 16:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
+            break;
+        case 17:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
+            break;
+        case 18:
+            document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
+            break;
     }
 
-/* Updates Scoreboard */  
-function updatePos(data, i){
+}
+
+/* Updates Scoreboard */
+function updatePos(data, i) {
     //Delta Check
     distanceReceived(i, data.m_lapData[i].m_totalDistance, data.m_lapData[i].m_currentLapTimeInMS);
-    if(i==curDriver){
+    if (i == curDriver) {
         document.getElementById("DD" + i).innerHTML = "--:--:--";
+    } else {
+        document.getElementById("DD" + i).innerHTML = deltaBetween(curDriver, i);
     }
-    else{
-        document.getElementById("DD" + i).innerHTML = deltaBetween(curDriver,i);
-    }
-    switch(data.m_lapData[i].m_resultStatus){
+    switch (data.m_lapData[i].m_resultStatus) {
         case 0:
             document.getElementById("D" + i).innerHTML = "NON";
             removeActiveDriver(i);
@@ -305,11 +313,11 @@ function updatePos(data, i){
             document.getElementById("D" + i).innerHTML = "RET";
             removeActiveDriver(i);
             break;
-    } 
+    }
     sortTable();
 }
 
-function removeActiveDriver(i){
+function removeActiveDriver(i) {
     activeDriverID.splice(activeDriverID.indexOf(i), 1);
     console.log(activeDriverID);
     table = document.getElementById("dTable");
@@ -320,12 +328,11 @@ function removeActiveDriver(i){
 }
 
 
-
-function isNum(val){
+function isNum(val) {
     return !isNaN(val)
-  }
+}
 
-function isDriverRunning(i){
+function isDriverRunning(i) {
     return activeDriverID.includes(i);
 }
 
@@ -339,28 +346,27 @@ function sortTable() {
     table = document.getElementById("dTable");
     switching = true;
     while (switching) {
-      switching = false;
-      rows = table.rows;
-      for (i = 1; i < (rows.length - 1); i++) {
-        shouldSwitch = false;
-        x = rows[i].getElementsByTagName("TD")[0];
-        y = rows[i + 1].getElementsByTagName("TD")[0];
-        if(isNum(x.innerHTML) || isNum(y.innerHTML)){
-            if (Number(x.innerHTML) > Number(y.innerHTML)) {
-                shouldSwitch = true;
-                break;
-              } 
-        } 
-      }
-      if (shouldSwitch) {
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        switching = true;
-      }
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[0];
+            y = rows[i + 1].getElementsByTagName("TD")[0];
+            if (isNum(x.innerHTML) || isNum(y.innerHTML)) {
+                if (Number(x.innerHTML) > Number(y.innerHTML)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
     }
-  }
-
-  //Converts time from MS -> M:S:MS
-  function timeConvert(time){
+}
+//Converts time from MS -> M:S:MS
+function timeConvert(time){
       /*
     var seconds = Math.floor(time / 1000);
     var minutes = Math.floor(seconds / 60);
@@ -374,92 +380,4 @@ function sortTable() {
    var mSeconds = time%1000;
     return minutes + ":"+ seconds + "." + mSeconds.toPrecision(2); 
 }
-  //Delta Update Code Below
-  const DISTANCE_INTERVAL = 100.0; // How often the program should update delta calculations
-  // What the upper bound on distance % DISTANCE_INTERVAL will be e.g. how close this distance should be to the interval
-  // to be counted
-  const DISTANCE_UPPER_BOUND = 100.0;
-  // See DeltaCleanupWorker.js to configure how many common distances will be kept between the cars
-  
-  let timeMap = new Map(); // carIndex -> Map (distance -> time)
-  let worker; // Stores the cleanup worker
-  let workerRunning = false; // Whether or not the worker is currently working
-  
-  /**
-   * To be called whenever a LapData packet is received. Will automatically filter relevant distances
-   * @param {Number} driverIndex the index of the driver the packet is from
-   * @param {Number} distance the total distance covered by that driver according to the session packet
-   * @param {Number} time total time in milliseconds
-   */
-  function distanceReceived (driverIndex, distance, time) {
-      // Ignores irrelevant distances
-      if (distance % DISTANCE_INTERVAL > DISTANCE_UPPER_BOUND) {
-          return;
-      }
-  
-      if (!timeMap.has(driverIndex)) {
-          timeMap.set(driverIndex, new Map()); // Adds the nested map if necessary
-      }
-  
-      timeMap.get(driverIndex).set(distance, time);
-  
-      if (!workerRunning) {
-          setupWorker();
-      }
-  }
-  
-  /**
-   * Returns the delta, in milliseconds, between driver one and driver two. Will be negative if driver one is ahead,
-   * positive if driver two is ahead. Assumes both drivers already have been logged at least once
-   * @param driverOne {int} the index of the first driver
-   * @param driverTwo {int} the index of the second driver
-   * @return {Number} the delta, in milliseconds, between drivers one and two
-   */
-  function deltaBetween(driverOne, driverTwo) {
-      if (!(timeMap.has(driverOne) && timeMap.has(driverTwo))) {
-          return -1;
-      }
-      // First we find the biggest distance value for each driver. The min out of the two will be used
-      let oneBiggest = 0;
-      timeMap.get(driverOne).forEach(((value, key) => {
-          if (key > oneBiggest) {
-              oneBiggest = key;
-          }
-      }))
-  
-      let twoBiggest = 0;
-      timeMap.get(driverTwo).forEach(((value, key) => {
-          if (key > twoBiggest) {
-              twoBiggest = key;
-          }
-      }))
-  
-      let usedDistance = Math.min(oneBiggest, twoBiggest);
-      let driverOneTime = timeMap.get(driverOne).get(usedDistance);
-      let driverTwoTime = timeMap.get(driverTwo).get(usedDistance);
-  
-      return driverOneTime - driverTwoTime;
-  
-  }
-  
-  /**
-   * Sets up the worker if necessary
-   */
-  function setupWorker() {
-  // This configures the worker
-      if (!worker) {
-          worker = new Worker('./DeltaCleanupWorker.js')
-      }
-  
-      workerRunning = true;
-      worker.postMessage(timeMap);
-  
-      /**
-       * Handles replies from the worker
-       * @param e {MessageEvent} the reply from the worker
-       */
-      worker.onmessage = function(e) {
-          timeMap = e.data;
-          workerRunning = false;
-      }
-  }
+ 
