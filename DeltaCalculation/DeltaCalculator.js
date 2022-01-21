@@ -96,7 +96,7 @@ function deltaBetween(driverOne, driverTwo) {
 function setupWorker() {
 // This configures the worker
     if (!worker) {
-        worker = new Worker('./DeltaCleanupWorker.js')
+        worker = new Worker('./DeltaCalculation/DeltaCleanupWorker.js')
     }
 
     workerRunning = true;
