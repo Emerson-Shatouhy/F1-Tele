@@ -1,14 +1,15 @@
 const {deltaBetween, distanceReceived} = require('./DeltaCalculation/DeltaCalculator');
 const {F1TelemetryClient} = require('f1-2021-udp');
 const client = new F1TelemetryClient({port: 20770, address:/*'130.215.225.93'*/'130.215.124.68'});
-var curDriver = 0;
+//var curDriver = 0;
 var tAge = 1;
 var lobbyInit = false;
 var driverSet = false;
+var teamIdsSet = false;
 var activeDriverID = [];
 var teamColor = [];
 var teamIds = [];
-runTests();//Testing case should run once REMOVE LATER
+//runTests();//Testing case should run once REMOVE LATER
 
 // motion 
 client.on('motion', function (data) {
@@ -71,10 +72,10 @@ client.on('session', function (data) {
 client.on('lapData',function(data) {
     if(driverSet){
     updateCurrentDriver();
+    updateLapData(data,i);
     for(var i = 0; i < 20; i++){
         if(isDriverRunning(i)){
         updatePos(data, i);
-        updateLapData(data,i);
         }
     }
     }
@@ -130,21 +131,16 @@ client.on('finalClassification', function (data) {
 // lobby info 
 
 client.on('lobbyInfo',function(data) {
-    if (!lobbyInit){
+    if (!teamIdsSet){
         setTeamIds();
     }
+    teamIdsSet = true;
     //MAY NOT WORK TEST
 })
 
 // car damage 
 client.on('carDamage',function(data) {
-    if(driverSet){
-        for(var i; i<20; i++){
-            if(isDriverRunning(i)){
-                updateTireDamage(data,i);
-            }
-        }
-    }
+    updateTireDamage(data);
 
 })
 
@@ -162,6 +158,7 @@ document.addEventListener('input', function (event) {
 	if (event.target.id !== 'dSelect') return;
     curDriver= id;
 }, false);
+
 /* Setups Driver info */
 function driverInit(name, i) {
     activeDriverID.push(i);
@@ -175,21 +172,21 @@ function driverInit(name, i) {
     cell.innerHTML = i;
     cell2.id = "DN" + i;
     cell2.innerHTML = '<i class="bi bi-dash-circle-fill"></i>' + name;
-    cell2.style = '"color: '+getTeamColor(i)+'"';
+    cell2.style = '"color: black"';//+getTeamColor(i)+'"'
     var cell3 = row.insertCell(2);
     cell3.id = "DT" + i;
     cell3.innerHTML = '<i class="bi bi-dash-circle-fill"></i>';
     var cell4 = row.insertCell(3);
     cell4.id = "TA" + i;
     cell4.innerHTML = '0';
-    var cell5 = row.insertCell(4);
+    /*var cell5 = row.insertCell(4);
     cell5.id = "DD" + i;
     if (i == curDriver) {
         cell5.innerHTML = "--:--:--";
     } else {
         cell5.innerHTML = deltaBetween(curDriver, i);
     }
-
+*/
     /* Driver Select Init */
     var dSel = document.getElementById("dSelect");
     var option = document.createElement("option");
@@ -213,7 +210,7 @@ function setTeamIds(data,i){
     teamIds.add(data.m_lobbyInfoData[i].m_teamId);
 }
 //Updates lap data 
-function updateLapData(data,i){
+function updateLapData(data){
 
     document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
     document.getElementById("currT").innerHTML = timeConvert(data.m_lapData[curDriver].m_currentLapTimeInMS);
@@ -234,13 +231,13 @@ function updateCarTelemetry(data, i) {
 }
 
 //updates Tire damage data
-function updateTireDamage(data, i){
-    tWearAvg = ((data.m_carDamageData[curDriver].m_tyresWear[0] + data.m_carDamageData[curDriver].m_tyresWear[1]+data.m_carDamageData[curDriver].m_tyresWear[2]+data.m_carDamageData[curDriver].m_tyresWear[3])/4).toFixed(1);
-    document.getElementById("tWearMax").innerHTML =data.m_carDamageData[curDriver].m_tyresWear[0];
-    //document.getElementById("tWearMax").innerHTML = Math.max(data.m_carDamageData[curDriver].m_tyresWear[0], data.m_carDamageData[curDriver].m_tyresWear[1],data.m_carDamageData[curDriver].m_tyresWear[2],data.m_carDamageData[curDriver].m_tyresWear[3]).toFixed(1);
+function updateTireDamage(data){
+    var tWearAvg = ((data.m_carDamageData[curDriver].m_tyresWear[0] + data.m_carDamageData[curDriver].m_tyresWear[1]+data.m_carDamageData[curDriver].m_tyresWear[2]+data.m_carDamageData[curDriver].m_tyresWear[3])/4).toFixed(1);
+    //document.getElementById("tWearMax").innerHTML =data.m_carDamageData[curDriver].m_tyresWear[0].toFixed(1);
+    document.getElementById("tWearMax").innerHTML = Math.max(Math.max(data.m_carDamageData[curDriver].m_tyresWear[0],data.m_carDamageData[curDriver].m_tyresWear[1]),Math.max(data.m_carDamageData[curDriver].m_tyresWear[2],data.m_carDamageData[curDriver].m_tyresWear[3])).toFixed(2);
     document.getElementById("tWearAvg").innerHTML = tWearAvg;
     if(tAge>0){
-        document.getElementById("tWearPerLap").innerHTML = tWearAvg / tAge;
+        document.getElementById("tWearPerLap").innerHTML = (tWearAvg / tAge).toFixed(2);
     }
 }
 //update current driver Testing Code--------
@@ -367,17 +364,9 @@ function sortTable() {
 }
 //Converts time from MS -> M:S:MS
 function timeConvert(time){
-      /*
-    var seconds = Math.floor(time / 1000);
-    var minutes = Math.floor(seconds / 60);
-    var mSeconds = time % 60;
-    if (seconds > 60){
-        var seconds = seconds%60;
-    }  
-    */
    var minutes = Math.floor(time/(60*1000));
    var seconds = Math.floor(time/1000)%60;
-   var mSeconds = time%1000;
-    return minutes + ":"+ seconds + "." + mSeconds.toPrecision(2); 
+   var mSeconds = (time%1000);
+    return minutes.toFixed(0) + ":"+ seconds.toFixed(0) + "." + mSeconds.toFixed(0); 
 }
  
