@@ -1,5 +1,5 @@
-const { F1TelemetryClient } = require('f1-2021-udp');
-const client= new F1TelemetryClient({port:20770, address:'130.215.225.93'});
+const {F1TelemetryClient} = require('f1-2021-udp');
+const client = new F1TelemetryClient({port: 20770, address: '130.215.225.93'});
 var curDriver = 0;
 var sessionSet = false;
 var run = false;
@@ -15,11 +15,11 @@ var run = false;
     document.getElementById("zVel").innerHTML = data.m_carMotionData[curDriver].m_worldVelocityZ;
 })*/
 
-client.on('session',function(data) {
+client.on('session', function (data) {
     document.getElementById("tLap").innerHTML = data.m_totalLaps;
     var sessionType = 0;
     var oldSessionType;
-    switch(data.m_sessionType) {
+    switch (data.m_sessionType) {
         case 0:
             sessionType = "Unknown";
             break;
@@ -59,53 +59,51 @@ client.on('session',function(data) {
         default:
             sessionType = "Unkown";
             break;
-        
+
     }
     /*if(oldSessionType = sessionType){
         return;
     } else {*/
-        document.getElementById("sName").innerHTML = sessionType;
-        oldSessionType = sessionType;
-        sessionSet  = false;
-        //run = false;
+    document.getElementById("sName").innerHTML = sessionType;
+    oldSessionType = sessionType;
+    sessionSet = false;
+    //run = false;
     //}
 
 })
 
-client.on('carTelemetry',function(data) {
+client.on('carTelemetry', function (data) {
     document.getElementById("accelerator").style.width = data.m_carTelemetryData[curDriver].m_throttle * 100 + "%";
     document.getElementById("brake").style.width = data.m_carTelemetryData[curDriver].m_brake * 100 + "%";
     //document.getElementById("revLights").style.width = data.m_carTelemetryData[curDriver].m_revLightsBitValue;
     document.getElementById("engineRPM").innerHTML = data.m_carTelemetryData[curDriver].m_engineRPM;
     document.getElementById("gear").innerHTML = data.m_carTelemetryData[curDriver].m_gear;
     //document.getElementById("tyreTemp").style.width = data.m_carTelemetryData[curDriver].m_tyresSurfaceTemperature[4];
-    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed*.6213.toPrecision(2);
+    document.getElementById("speed").innerHTML = data.m_carTelemetryData[curDriver].m_speed * .6213.toPrecision(2);
     //document.getElementById("steer").style.width = data.m_carTelemetryData[curDriver].m_steer;
-    
+
 });
-client.on('participants', function(data) {
-   if(run) {
+client.on('participants', function (data) {
+    if (run) {
     } else {
-     for(i=0;i<data.m_participants.length;i++) {
-        if(data.m_participants[i].m_name.length > 0) {
-            driverInit(data.m_participants[i].m_name, i);
+        for (i = 0; i < data.m_participants.length; i++) {
+            if (data.m_participants[i].m_name.length > 0) {
+                driverInit(data.m_participants[i].m_name, i);
+            }
         }
-    }
-     run = true;
+        run = true;
     }
 });
 
 
-
-
-client.on('carStatus',function(data) {
-    for(i=0;i<20;i++) {
+client.on('carStatus', function (data) {
+    for (i = 0; i < 20; i++) {
         driverUpdate(i, data, "tire");
     }
 })
 
 
-client.on('lapData',function(data) {
+client.on('lapData', function (data) {
     document.getElementById("cLap").innerHTML = data.m_lapData[curDriver].m_currentLapNum;
     document.getElementById("currT").innerHTML = timeConvert(data.m_lapData[curDriver].m_currentLapTimeInMS);
     document.getElementById("lastT").innerHTML = timeConvert(data.m_lapData[curDriver].m_lastLapTimeInMS);
@@ -114,13 +112,14 @@ client.on('lapData',function(data) {
     document.getElementById("pLTF").innerHTML = data.m_lapData[curDriver].m_pitLaneTimeInLaneInMS * 0.001.toPrecision(2);
     document.getElementById("pLTS").innerHTML = data.m_lapData[curDriver].m_pitStopTimerInMS * 0.001.toPrecision(2);
     sessionInit(data);
-    for(i=0;i<20;i++) {
+    for (i = 0; i < 20; i++) {
         driverUpdate(i, data, "pos");
         //driverUpdate(i, data, "stat");
     }
 })
-// Telemetry Update 
-function teleUpdate(data){
+
+// Telemetry Update
+function teleUpdate(data) {
 
 }
 
@@ -147,52 +146,50 @@ function driverInit(name, i) {
     var dSel = document.getElementById("dSelect");
     var option = document.createElement("option");
     option.text = name;
-        option.id = i;
-        dSel.add(option);
+    option.id = i;
+    dSel.add(option);
 }
 
 //Initialize the Session Information
-function sessionInit(data){
+function sessionInit(data) {
 //Starting Position Init
-if(sessionSet){
-    return;
-} else {
-    //Starting Position Init
-    //EMERSON WAS LAZY HERE FIX THIS LATER
-for(i=0;i<20;i++) {
-    //document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_gridPosition;
-}
+    if (sessionSet) {
+        return;
+    } else {
+        //Starting Position Init
+        //EMERSON WAS LAZY HERE FIX THIS LATER
+        for (i = 0; i < 20; i++) {
+            //document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_gridPosition;
+        }
 //Session Info Other
 
 
-
-
-}
-sessionSet = true;
+    }
+    sessionSet = true;
 }
 
 //Updates the Drivers Current Position and Tire
 function driverUpdate(i, data, type) {
-    switch(type){
-       case "tire":
-        switch(data.m_carStatusData[i].m_visualTyreCompound){
-            case 7:
-                document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
-                break;
-            case 8:
-                document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
-                break;
-            case 16:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
-                break;
-            case 17:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
-                break;
-            case 18:
-                document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
-                break;
-        }
-        break;
+    switch (type) {
+        case "tire":
+            switch (data.m_carStatusData[i].m_visualTyreCompound) {
+                case 7:
+                    document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: green"></i>';
+                    break;
+                case 8:
+                    document.getElementById("D" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: blue"></i>';
+                    break;
+                case 16:
+                    document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: red"></i>';
+                    break;
+                case 17:
+                    document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: yellow"></i>';
+                    break;
+                case 18:
+                    document.getElementById("DT" + i).innerHTML = '<i class="bi bi-dash-circle-fill" style="color: white"></i>';
+                    break;
+            }
+            break;
         case "pos":
             document.getElementById("D" + i).innerHTML = data.m_lapData[i].m_carPosition;
             break;
@@ -201,14 +198,12 @@ function driverUpdate(i, data, type) {
 }
 
 
-
 document.addEventListener('input', function (event) {
     var dList = document.getElementById("dSelect");
     var id = dList.options[dList.selectedIndex].id;
-	if (event.target.id !== 'dSelect') return;
-    curDriver= id;
+    if (event.target.id !== 'dSelect') return;
+    curDriver = id;
 }, false);
-
 
 
 //None Event
@@ -219,41 +214,42 @@ function sortTable() {
     /* Make a loop that will continue until
     no switching has been done: */
     while (switching) {
-      // Start by saying: no switching is done:
-      switching = false;
-      rows = table.rows;
-      /* Loop through all table rows (except the
-      first, which contains table headers): */
-      for (i = 1; i < (rows.length - 1); i++) {
-        // Start by saying there should be no switching:
-        shouldSwitch = false;
-        /* Get the two elements you want to compare,
-        one from current row and one from the next: */
-        x = rows[i].getElementsByTagName("TD")[0];
-        y = rows[i + 1].getElementsByTagName("TD")[0];
-        // Check if the two rows should switch place:
-        if (Number(x.innerHTML) > Number(y.innerHTML)) {
-          // If so, mark as a switch and break the loop:
-          shouldSwitch = true;
-          break;
+        // Start by saying: no switching is done:
+        switching = false;
+        rows = table.rows;
+        /* Loop through all table rows (except the
+        first, which contains table headers): */
+        for (i = 1; i < (rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            /* Get the two elements you want to compare,
+            one from current row and one from the next: */
+            x = rows[i].getElementsByTagName("TD")[0];
+            y = rows[i + 1].getElementsByTagName("TD")[0];
+            // Check if the two rows should switch place:
+            if (Number(x.innerHTML) > Number(y.innerHTML)) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+            }
         }
-      }
-      if (shouldSwitch) {
-        /* If a switch has been marked, make the switch
-        and mark that a switch has been done: */
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        switching = true;
-      }
+        if (shouldSwitch) {
+            /* If a switch has been marked, make the switch
+            and mark that a switch has been done: */
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
     }
-  }
-function timeConvert(time){
+}
+
+function timeConvert(time) {
     var seconds = Math.floor(time / 1000);
     var minutes = Math.floor(seconds / 60);
     var mSeconds = time % 60;
-    if (seconds > 60){
-        var seconds = seconds -60;
-    }  
-    return minutes + ":"+ seconds + "." + mSeconds.toPrecision(2); 
+    if (seconds > 60) {
+        var seconds = seconds - 60;
+    }
+    return minutes + ":" + seconds + "." + mSeconds.toPrecision(2);
 }
 
 client.start();

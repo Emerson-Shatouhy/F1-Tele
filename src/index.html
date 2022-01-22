@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <title>F1 Telemetry</title>
+    <!-- DO NOT TOUCH ANYTHING ABOVE plz-->
+
+    <!-- Nav Bar-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">F1 Tele</a>
+            <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+                    class="navbar-toggler" data-bs-target="#navbarSupportedContent"
+                    data-bs-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Race Director</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="engineer.html">Race Engineer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="data.html">Data Review</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Nav Bar End-->
+</head>
+<body>
+<div class="fluid-container bg-dark text-primary">
+    <!-- Upper Section -->
+    <div class="row">
+        <!-- Timing Board -->
+        <div class="col-3">
+            <center>
+                <h3 id="sName">Session</h3>
+                <table class="table text-primary table-hover " id="dTable">
+                    <thead>
+                    <tr>
+                        <th scope="col">
+                            <!--lap# display-->
+                            <p>Lap: <a id="cLap">0</a>/<a id="tLap">0</a><!--total--></p>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </center>
+        </div>
+        <!-- Live Map -->
+        <div class="col-6" style="border-left: 2px solid rgb(0, 0, 0); border-right: 2px solid rgb(0, 0, 0);">
+            <center>
+                <h3>Live Map</h3>
+            </center>
+            <h4>Location Data Dump</h4>
+            <p1>X: <a id="xPos"></a></p1>
+            <p1>X Accleration: <a id="xVel"></a></p1>
+            <br>
+            <p1>Y: <a id="yPos"></a></p1>
+            <p1>Y Accleration: <a id="yVel"></a></p1>
+            <br>
+            <p1>Z: <a id="zPos"></a></p1>
+            <p1>Z Accleration: <a id="zVel"></a></p1>
+            <br>
+            <!--<p1>curDriver: <a id="cDriver"></a></p1><br>-->
+
+        </div>
+        <!-- Car Telemetry -->
+        <div class="col-3">
+            <center>
+                <h3>Telemetry</h3>
+            </center>
+            <select aria-label="Default select example" class="form-select" id="dSelect">
+                <option>Test</option>
+            </select>
+            <!--Accelerator-->
+            <p>Accelerator</p>
+            <div class="progress">
+                <div aria-valuemax="100" aria-valuemin="0" class="progress-bar bg-success" id="accelerator"
+                     role="progressbar" style="width: 0%"></div>
+            </div>
+            <br>
+            <!--Brake-->
+            <p>Brake</p>
+            <div class="progress">
+                <div aria-valuemax="100" aria-valuemin="0" class="progress-bar bg-danger" id="brake" role="progressbar"
+                     style="width: 0%"></div>
+            </div>
+            <br>
+            <!--Shifting RPM-->
+            <p> RPM: <a id="engineRPM">0</a> <br> Gear: <a id="gear">0</a></p>
+            <p> Speed(MPH): <a id="speed">0</a></p>
+            <h4>Timing</h4>
+            <p>Current Lap Time: <a id="currT">0</a></p>
+            <p>Last Lap Time: <a id="lastT">0</a></p>
+            <p>Sector 1: <a id="sector1T">0</a></p>
+            <p>Sector 2: <a id="sector2T">0</a></p>
+            <h4>Pit Info</h4>
+            <p>Time in Pit Lane: <a id="pLTF">0</a></p>
+            <p>Time in Pit Stop: <a id="pLTS">0</a></p>
+        </div>
+    </div>
+    <!-- Lower Section -->
+    <div class="row">
+        <div class="col" style="border-top: 2px solid rgb(0, 0, 0);">
+            <center>
+                Other Info Here
+
+            </center>
+        </div>
+    </div>
+</div>
+
+<!-- DO NOT TOUCH ANYTHING BELOW plz-->
+<script src="index.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
