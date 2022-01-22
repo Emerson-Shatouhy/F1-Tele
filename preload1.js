@@ -13,9 +13,9 @@ var teamIds = [];
 
 // motion 
 client.on('motion', function (data) {
-    //getTireSlip(data);
-    //document.getElementById("tSlip").innerHTML = (100/4*(data.m_wheelSlip[1]  + data.m_wheelSlip[2] + data.m_wheelSlip[3] + data.m_wheelSlip[0])).toFixed(1);
-    //FIX
+    
+    updateTireSlip(data);
+    
 })
 
 // session 
@@ -139,15 +139,9 @@ client.on('lobbyInfo',function(data) {
 
 // car damage 
 client.on('carDamage',function(data) {
-    //updateTireDamage(data);
-    /*
-    var tWearAvg = ((data.m_carDamageData[curDriver].m_tyresWear[0] + data.m_carDamageData[curDriver].m_tyresWear[1]+data.m_carDamageData[curDriver].m_tyresWear[2]+data.m_carDamageData[curDriver].m_tyresWear[3])/4).toFixed(1);
-    //document.getElementById("tWearMax").innerHTML =data.m_carDamageData[curDriver].m_tyresWear[0].toFixed(1);
-    document.getElementById("tWearMax").innerHTML = Math.max(Math.max(data.m_carDamageData[curDriver].m_tyresWear[0],data.m_carDamageData[curDriver].m_tyresWear[1]),Math.max(data.m_carDamageData[curDriver].m_tyresWear[2],data.m_carDamageData[curDriver].m_tyresWear[3])).toFixed(2);
-    document.getElementById("tWearAvg").innerHTML = tWearAvg;
-    if(tAge>0){
-        document.getElementById("tDegPerLap").innerHTML = (tWearAvg / tAge).toFixed(2);
-    }*/
+    updateTireDamage(data);
+    
+    
 
 })
 
@@ -188,16 +182,10 @@ function driverInit(name, i) {
     var cell4 = row.insertCell(3);
     cell4.id = "TA" + i;
     cell4.innerHTML = '0';
-    //var cell5 = row.insertCell(4);
-    //cell5.id = "DD" + i;
-    //cell5.innerHTML = "test";
-    /*if (i == curDriver) {
-        cell5.innerHTML = "--:--:--";
-    } else {
-        cell5.innerHTML = "test";
-        //cell5.innerHTML = deltaBetween(curDriver, i);
-    }
-*/
+    var cell5 = row.insertCell(4);
+    cell5.id = "DD" + i;
+    cell5.innerHTML = "Init";
+    
     /* Driver Select Init */
     var dSel = document.getElementById("dSelect");
     var option = document.createElement("option");
@@ -219,6 +207,13 @@ function getTeamColor(i){
 }
 function setTeamIds(data,i){
     teamIds.add(data.m_lobbyInfoData[i].m_teamId);
+}
+function updateTireSlip(data){
+    
+        document.getElementById("tSlip").innerHTML = (100/4*(data.m_wheelSlip[1]  + data.m_wheelSlip[2] + data.m_wheelSlip[3] + data.m_wheelSlip[0])).toFixed(1);
+        //(100/4*(data.m_packetMotionData.m_wheelSlip[1]  + data.m_packetMotionData.m_wheelSlip[2] + data.m_packetMotionData.m_wheelSlip[3] + data.m_packetMotionData.m_wheelSlip[0])).toFixed(1);
+    
+    
 }
 //Updates lap data 
 function updateLapData(data){
@@ -244,7 +239,6 @@ function updateCarTelemetry(data, i) {
 //updates Tire damage data
 function updateTireDamage(data){
     var tWearAvg = ((data.m_carDamageData[curDriver].m_tyresWear[0] + data.m_carDamageData[curDriver].m_tyresWear[1]+data.m_carDamageData[curDriver].m_tyresWear[2]+data.m_carDamageData[curDriver].m_tyresWear[3])/4).toFixed(1);
-    //document.getElementById("tWearMax").innerHTML =data.m_carDamageData[curDriver].m_tyresWear[0].toFixed(1);
     document.getElementById("tWearMax").innerHTML = Math.max(Math.max(data.m_carDamageData[curDriver].m_tyresWear[0],data.m_carDamageData[curDriver].m_tyresWear[1]),Math.max(data.m_carDamageData[curDriver].m_tyresWear[2],data.m_carDamageData[curDriver].m_tyresWear[3])).toFixed(2);
     document.getElementById("tWearAvg").innerHTML = tWearAvg;
     if(tAge>0){
@@ -283,12 +277,12 @@ function tireSet(data, i) {
 /* Updates Scoreboard */
 function updatePos(data, i) {
     //Delta Check
-    //distanceReceived(i, data.m_lapData[i].m_totalDistance, data.m_lapData[i].m_currentLapTimeInMS);
+    distanceReceived(i, data.m_lapData[i].m_totalDistance, data.m_lapData[i].m_currentLapTimeInMS);
     if (i == curDriver) {
-        //document.getElementById("DD" + i).innerHTML = "--:--:--";
+        document.getElementById("DD" + i).innerHTML = "--:--:--";
     } 
     else {
-        //document.getElementById("DD" + i).innerHTML = "test";
+        document.getElementById("DD" + i).innerHTML = timeConvert(deltaBetween(curDriver,i));
     }
     switch (data.m_lapData[i].m_resultStatus) {
         case 0:

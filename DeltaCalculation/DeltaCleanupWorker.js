@@ -36,7 +36,7 @@ function cleanupSet(map) {
             // Here we filter. If this doesn't have any value the distancesAllHave map has, we remove it from there
             distancesAllHave.forEach((distance) => {
                 if (!car.has(distance)) {
-                    distancesAllHave.remove(distance);
+                    distancesAllHave.delete(distance);
                 }
             })
         }
