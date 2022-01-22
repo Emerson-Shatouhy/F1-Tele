@@ -1,4 +1,4 @@
-const {deltaBetween, distanceReceived} = require('./DeltaCalculation/DeltaCalculator');
+const {deltaBetween, distanceReceived} = require('./delta_calculation/delta_calculator');
 const {F1TelemetryClient} = require('f1-2021-udp');
 const client = new F1TelemetryClient({port: 20770, address:/*'130.215.225.93'*/'130.215.124.68'});
 var curDriver = 0;
