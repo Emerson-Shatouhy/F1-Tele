@@ -71,10 +71,11 @@ client.on('session', function (data) {
 
 client.on('lapData',function(data) {
     if(driverSet){
-    updateLapData(data,i);
+    
     for(var i = 0; i < 20; i++){
         if(isDriverRunning(i)){
-        updatePos(data, i);
+            updatePos(data, i);
+            updateLapData(data,i);
         }
     }
     }
