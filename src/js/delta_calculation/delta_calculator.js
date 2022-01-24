@@ -28,7 +28,7 @@ module.exports = {
  *                       decreases storage
  */
 const {DISTANCE_INTERVAL, DISTANCE_UPPER_BOUND, POINTS_PER_AVERAGE, AVERAGES_PER_TO_CATCH} =
-    require('../../config.json');
+    require('../../../config.json');
 const IS_NODE = (typeof window === "undefined" || typeof document === "undefined");
 
 let timeMap = new Map(); // carIndex -> Map (distance -> time)
