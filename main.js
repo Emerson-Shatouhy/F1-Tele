@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
-//const { F1TelemetryClient } = require('f1-2021-udp');
+const { F1TelemetryClient } = require('f1-2021-udp');
 
 console.log("Main Active");//test
 function createWindow  ()  {
@@ -10,7 +10,7 @@ function createWindow  ()  {
     height: 1224,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(__dirname, 'preloadFinal.js'),
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegrationInWorker: true
     }
   })
