@@ -1,4 +1,5 @@
-const {F1TelemetryClient} = require('f1-2021-udp');
+console.log("Preload Active");//testing
+//const {F1TelemetryClient} = require('f1-2021-udp');
 const {RECIEVING_IP} =require('./config.json');
 const client = new F1TelemetryClient({port: 20770, address:/*'130.215.225.93'*/RECIEVING_IP}); //Your IP
  //Instance Variables
@@ -14,7 +15,7 @@ contextBridge.exposeInMainWorld('electron',
   }
 )
 */
-console.log("Preload Active");//testing
+
 /**
  * See config.json for configuraiton options.
  * RECIEVING_IP     the IP address the data is being sent to (your computer)
