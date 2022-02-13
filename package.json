@@ -32,5 +32,6 @@
   },
   "dependencies": {
     "f1-2021-udp": "^1.12.5"
+    "electron": "^16.0.7"
   }
 }
