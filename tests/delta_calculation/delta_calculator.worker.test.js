@@ -10,12 +10,12 @@ const {POINTS_PER_AVERAGE, AVERAGES_PER_TO_CATCH} = require("../../config.json")
  * cleanup Error checking.
  * Any map that doesn't follow the format laid out in delta_calculator.js should result in an Error being thrown
  */
-test("cleanup Error checking", () => {
-    expect(() => {cleanupSet("asdf")}).toThrow();
-    expect(() => {cleanupSet(new Map().set("asdf", new Map()))}).toThrow();
-    expect(() => {cleanupSet(new Map().set(1, "asdf"))}).toThrow();
-    expect(() => {cleanupSet(new Map().set(1, new Map().set("asdf", 1)))}).toThrow();
-    expect(() => {cleanupSet(new Map().set(1, new Map().set(1, "asdf")))}).toThrow();
+test("cleanup formatting Error", () => {
+    expect(() => {cleanupSet("asdf")}).toThrow(TypeError);
+    expect(() => {cleanupSet(new Map().set("asdf", new Map()))}).toThrow(TypeError);
+    expect(() => {cleanupSet(new Map().set(1, "asdf"))}).toThrow(TypeError);
+    expect(() => {cleanupSet(new Map().set(1, new Map().set("asdf", 1)))}).toThrow(TypeError);
+    expect(() => {cleanupSet(new Map().set(1, new Map().set(1, "asdf")))}).toThrow(TypeError);
 
     // Depth case. Even if only the last element is invalid, the map passed in shouldn't be modified and should error
 
@@ -43,7 +43,7 @@ test("cleanup Error checking", () => {
  * cleanup edge case.
  * Empty maps should just return themselves
  */
-test("cleanup edge case", () => {
+test("cleanup empty map", () => {
     let result = new Map();
     let expected = new Map();
     expect(cleanupSet(result)).toEqual(expected);
@@ -53,7 +53,7 @@ test("cleanup edge case", () => {
  * cleanup edge case.
  * Empty nested maps should return themselves, even if any of them are filled
  */
-test("cleanup edge case", () => {
+test("cleanup one empty nested map", () => {
     // Setup, two maps with one empty nested
     let result = new Map();
     let expected = new Map();
@@ -70,7 +70,7 @@ test("cleanup edge case", () => {
  * cleanup edge case.
  * Not enough elements to clean up, so nothing should happen
  */
-test("cleanup edge case", () => {
+test("cleanup not enough elements to clean", () => {
     // Sets up the expected and result, 2 cars
     let result = new Map();
     let expected = new Map();
@@ -95,7 +95,7 @@ test("cleanup edge case", () => {
  * cleanup base case.
  * Should delete one element, also verifies that result is modified
  */
-test("cleanup base case", () => {
+test("cleanup delete one element", () => {
     // Sets up the result and expected, 3 cars
     let result = new Map();
     let expected = new Map();
@@ -129,7 +129,7 @@ test("cleanup base case", () => {
  * cleanup middle case.
  * Should delete POINTS_PER_AVERAGE * AVERAGES_PER_TO_CATCH points, also verifies that result is modified
  */
-test("cleanup middle case", () => {
+test("cleanup delete POINTS_PER_AVERAGE * AVERAGRES_PER_TO_CATCH points", () => {
     // Sets up the result and expected, 3 cars
     let result = new Map();
     let expected = new Map();
@@ -163,7 +163,7 @@ test("cleanup middle case", () => {
  * cleanup edge case.
  * Any points that aren't held by all drivers should be ignored
  */
-test("cleanup edge case", () => {
+test("cleanup don't delete points not held by all", () => {
     // Sets up the result and expected, 3 cars
     let result = new Map();
     let expected = new Map();

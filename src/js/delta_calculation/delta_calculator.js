@@ -1,8 +1,9 @@
 /**
  * Contains the code for adding data-points to be used to calculate deltas and the code for calculating deltas
- * @type {{reset: reset,
- * distanceReceived: distanceReceived,
- * deltaBetween: (function(int, int)),
+ * @type {{toCatchRealTime: ((function(int, int, Number): Number)|*),
+ * toCatchLapBased: ((function(int, int, *, *): Number)|*),
+ * reset: reset, distanceReceived: distanceReceived,
+ * deltaBetween: (function(int, int): number),
  * hasDriver: (function(int): boolean)}} Functions for interfacing with storage and calculating deltas
  * @author https://github.com/Landaman
  */
@@ -69,8 +70,9 @@ function distanceReceived(driverIndex, distance, time) {
 }
 
 /**
- * Returns the delta, in milliseconds, between driver one and driver two. Will be negative if driver one is ahead,
- * positive if driver two is ahead. Assumes both drivers already have been logged at least once
+ * Returns the delta, in milliseconds, between driver one and driver two.
+ * Is an average of the last POINTS_PER_AVERAGE deltas. Will be negative if driver one is ahead,
+ * positive if driver two is ahead. Will be 0 if the car ahead is changing in the POINTS_PER_AVERAGE set
  * @param driverOne {int} the index of the first driver
  * @param driverTwo {int} the index of the second driver
  * @return {Number} the delta, in milliseconds, between drivers one and two
@@ -82,45 +84,74 @@ function deltaBetween(driverOne, driverTwo) {
         throw new Error("One or both drivers haven't been initialized");
     }
 
-    return deltaAverageAtCommonPoint(driverOne, driverTwo, -1);
+    return deltaAverageAtCommonDistance(driverOne, driverTwo, -1);
 }
 
 /**
- * Calculates the delta using the POINTS_PER_AVERAGE number of data-points, at a given multiple in the set of common
- * data shared by the two drivers. Assumes both drivers exist
- * @param driverOne {int} the index of the first driver
- * @param driverTwo {int} the index of the second driver
- * @param multiple {int} the multiple of POINTS_PER_AVERAGE to use. May be negative 0
- * @returns {number} the delta, in milliseconds, between drivers one and two. Will be negative if driver one is ahead,
- * positive if driver two is ahead.
+ * Returns the common distances shared by the two drivers. Assumes they both exist and are instantiated
+ * @param driverOne the first driver
+ * @param driverTwo the second driver
+ * @returns {Number[]} a sorted array of the common distances shared by the two drivers
  */
-function deltaAverageAtCommonPoint(driverOne, driverTwo, multiple) {
+function commonDistances(driverOne, driverTwo) {
+    // Finds the car that has more data, and then gets the elements saved by both
     let oneMap = timeMap.get(driverOne);
     let twoMap = timeMap.get(driverTwo);
     let biggerMap = oneMap.size > twoMap.size ? oneMap : twoMap;
     let biggerDistanceArray = Array.from(biggerMap.keys());
-    let commonElements =
-        biggerDistanceArray.filter((element) => {
-            return oneMap.has(element) && twoMap.has(element);
-        });
+    return biggerDistanceArray.filter((element) => {
+        return oneMap.has(element) && twoMap.has(element);
+    }).sort((a, b) => {return a - b;});
+}
+
+/**
+ * Calculates the delta using the POINTS_PER_AVERAGE number of data-points, at a given multiple in the set of common
+ * data shared by the two drivers. Assumes both drivers exist. Will be 0 if the lead is changing within the desired set
+ * @param driverOne {int} the index of the first driver
+ * @param driverTwo {int} the index of the second driver
+ * @param multiple {int} the multiple of POINTS_PER_AVERAGE to use. May be negative or 0
+ * @returns {number} the delta, in milliseconds, between drivers one and two. Will be negative if driver one is ahead,
+ * positive if driver two is ahead.
+ */
+function deltaAverageAtCommonDistance(driverOne, driverTwo, multiple) {
+    // Setup
+    let oneMap = timeMap.get(driverOne);
+    let twoMap = timeMap.get(driverTwo);
+    let commonElements = commonDistances(driverOne, driverTwo);
 
     // This gets the relevant range from the multiple
     if (multiple === 1 || multiple === -1) {
-        // If 1 or -1, it's just that to the beginning/end
-        commonElements = commonElements.slice(multiple * POINTS_PER_AVERAGE);
+        // If 1 or -1, it's just that to the beginning/end. We just need to make sure that there is enough elements to
+        // grab and if there isn't
+        let elementsToGet = commonElements.length % POINTS_PER_AVERAGE === 0 ?
+            multiple * POINTS_PER_AVERAGE :
+           multiple * (commonElements.length % POINTS_PER_AVERAGE);
+        commonElements = commonElements.slice(elementsToGet);
     } else if (multiple > 1) {
         // If it's greater than 1, it's multiple-1 -> multiple
         commonElements = commonElements.slice((multiple - 1) * POINTS_PER_AVERAGE, multiple * POINTS_PER_AVERAGE);
     } else if (multiple < -1) {
         // If it's less than -1, it's multiple -> multiple +1 (1 closer to 0/the end)
-        commonElements = commonElements.slice(multiple * POINTS_PER_AVERAGE, (multiple + 1) * POINTS_PER_AVERAGE);
+        // Since we're slicing from the end, if we don't have the exact number of elements we shift the indexes we are
+        // getting over by the amount we're getting so we still end up with the desired group
+        let modifier = commonElements.length % POINTS_PER_AVERAGE === 0 ?
+            0 : (5 - commonElements.length % POINTS_PER_AVERAGE);
+        commonElements = commonElements.slice(multiple * POINTS_PER_AVERAGE + modifier,
+            (multiple + 1) * POINTS_PER_AVERAGE + modifier);
     }
     // No else clause, if it's 0 we just get everything
 
-    // Now we take the deltas for each distance here, and then average them
+    // Now we take the deltas for each distance here, and then average them. If the signs aren't equal for any,
+    // returns 0
     let deltaSum = 0;
+    const isNegative = oneMap.get(commonElements[0]) - twoMap.get(commonElements[0]) < 0;
     for (let i = 0; i < commonElements.length; i++) {
-        deltaSum += oneMap.get(commonElements[i]) - twoMap.get(commonElements[i]);
+        let delta = oneMap.get(commonElements[i]) - twoMap.get(commonElements[i]);
+        // Terminates early if there's a sign change, meaning there would be a lead change
+        if (isNegative !== delta < 0) {
+            return 0;
+        }
+        deltaSum += delta;
     }
 
     return deltaSum / commonElements.length;
@@ -131,31 +162,96 @@ function deltaAverageAtCommonPoint(driverOne, driverTwo, multiple) {
  * the rate of change of the drivers deltas. If driverTwo isn't catching or is ahead, returns -1
  * @param driverOne {int} the index of the driver ahead
  * @param driverTwo {int} the index of the driver behind
+ * @param averageLapDistance {Number} the average lap distance around this course
  * @return {Number} the number of laps it will take driverTwo to catch driverOne or -1 if driverTwo isn't catching or
  * driverTwo is ahead
  * @throws {Error} if one or both drivers haven't been initialized
+ * @throws {TypeError} if the averageLapDistance isn't a number
  */
-function toCatchRealTime(driverOne, driverTwo) {
+function toCatchRealTime(driverOne, driverTwo, averageLapDistance) {
+    // Error check one
     if (!(timeMap.has(driverOne) && timeMap.has(driverTwo))) {
         throw new Error("One or both drivers haven't been initialized");
     }
 
-    // TODO: Write this. This is going to involve using rateOfCatch and its eventual units to get to a lap number
-
-}
-
-/**
- * The rate at which driverTwo is catching driverOne. Assumes both drivers exist
- * @param driverOne {int} the driver ahead
- * @param driverTwo {int} the driver behind
- * @return {Number} the rate at which driverTwo is catching driverOne, or the rate at which driverOne is walking away
- * if that's happening // TODO: Include units here. Not sure what those will be yet
- */
-function rateOfCatch(driverOne, driverTwo) {
-    let deltas = [];
-    for (let i = 1; i <= AVERAGES_PER_TO_CATCH; i++) {
-        // TODO: Finish writing this
+    // Error check two
+    if (isNaN(averageLapDistance)) {
+        throw new TypeError("averageLapDistance isn't a number");
     }
+
+    // Stores all the deltas, in order from most recent to the least recent
+    let distances = commonDistances(driverOne, driverTwo);
+    let numGroups = Math.min(Math.ceil(distances.length / POINTS_PER_AVERAGE), AVERAGES_PER_TO_CATCH);
+    let delta = [];
+
+    // If the last distance is 0, return 0
+    if (timeMap.get(driverOne).get(distances[distances.length - 1]) -
+        timeMap.get(driverTwo).get(distances[distances.length - 1]) === 0) {
+        return 0;
+    }
+
+    // Max either the ceiling of distances.length / POINTS_PER_AVERAGE and less than AVERAGES_PER_TO_CATCH
+    for (let i = 1; i <= numGroups; i++) {
+        let thisDelta = deltaAverageAtCommonDistance(driverOne, driverTwo, -i);
+        // If the delta is positive or zero, ignore it and stop
+        if (thisDelta >= 0) {
+            // If i = 1, this is the first delta, so we need to return -1 and stop as the wrong car is ahead
+            if (i === 1) {
+                return -1;
+            }
+            break;
+        }
+
+        // If we've gotten this far, add it to the array
+        delta[i - 1] = thisDelta;
+    }
+
+    // If this is the case, there isn't enough information
+    if (delta.length < 2) {
+        return 0;
+    }
+
+    numGroups = delta.length; // Sets the number of groups to be the number of deltas as that is the number of used
+
+    // Finds the average rate of change in the deltas
+    let deltaAverageCatch = 0;
+    for (let i = 1; i < delta.length; i++) {
+        deltaAverageCatch += delta[i] - delta[i - 1]
+    }
+    deltaAverageCatch /= (numGroups - 1);
+
+    // Finds the sums of the distances for each group of POINTS_PER_AVERAGE
+    let distanceSums = new Array(Math.ceil(distances.length / POINTS_PER_AVERAGE)).fill(0);
+    for (let i = 0; i < distances.length; i++) {
+        distanceSums[Math.floor(i/POINTS_PER_AVERAGE)] += distances[i];
+    }
+
+    // Filters distanceSums, so we keep only the biggest numGroups distance sums
+    distanceSums = distanceSums.filter((element, index) => {
+        return index >= distanceSums.length - numGroups;
+    })
+
+    // Finds the average rate of change of the distances
+    let distanceAverageChange = 0;
+    for (let i = 1; i < distanceSums.length; i++) {
+        // If it's the last set of distances, the number of distances in the sum
+        // might not be POINTS_PER_AVERAGE so this figures that out
+        let thisDifference = 0;
+        if (i === distanceSums.length - 1) {
+            let currentNumberDistances =
+                distances.length % POINTS_PER_AVERAGE === 0 ? POINTS_PER_AVERAGE :
+                    distances.length % POINTS_PER_AVERAGE;
+            thisDifference = distanceSums[i] / currentNumberDistances - distanceSums[i - 1] / POINTS_PER_AVERAGE;
+        } else {
+            thisDifference = distanceSums[i] / POINTS_PER_AVERAGE - distanceSums[i - 1] / POINTS_PER_AVERAGE;
+        }
+
+        distanceAverageChange += thisDifference;
+    }
+   distanceAverageChange /= (numGroups - 1)
+
+    // Multiply distanceAverageChange by DISTANCE_INTERVAL because that is removed in the storage process
+    return Math.abs((delta[0]/deltaAverageCatch)) * (averageLapDistance/(distanceAverageChange * DISTANCE_INTERVAL));
 }
 
 /**
