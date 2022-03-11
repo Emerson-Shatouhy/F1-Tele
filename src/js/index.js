@@ -1,4 +1,6 @@
-var intervalID = setInterval(update, 2000);
+
+var driverNames = [];
+var intervalID = setInterval(update, 100);
 var tSet = false;
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -13,6 +15,7 @@ function update() {
   tableInit(window.electron.participantData());
   updateLapData(window.electron.lapData());
   tireUpdate(window.electron.carStatusData());
+  eventUpdate(window.electron.eventData());
 }
 
 /**
@@ -34,6 +37,7 @@ function tableInit(data) {
         pos.innerHTML = i;
         pos.id = "pos" + i;
         dName.innerHTML = data.m_participants[i].m_name;
+        driverNames.push(data.m_participants[i].m_name);
         tire.innerHTML = '<i class="bi bi-dash-circle-fill" style="color: pink"></i>' + ' 00';
         tire.id = "tire" + i;
         delta.innerHTML = '+00:00';
@@ -98,6 +102,86 @@ function tireUpdate(data) {
     }
   }
 }
+
+function eventUpdate(data) {
+  if (!data) return;
+  var table = document.getElementById("eTable");
+  if(table.rows[1]){
+  var firstRow = table.rows[1].cells[0];
+  }
+  if (!firstRow) {
+    var row = table.insertRow(1);
+    var time = row.insertCell(0);
+    var eventCode = row.insertCell(1);
+    var driver = row.insertCell(2);
+    var other = row.insertCell(3);
+    time.innerHTML = timeConvertS(data.m_header.m_sessionTime);
+    eventCode.innerHTML = data.m_eventStringCode;
+  }else if (firstRow.innerHTML != timeConvertS(data.m_header.m_sessionTime)) {
+    var row = table.insertRow(1);
+    var time = row.insertCell(0);
+    var eventCode = row.insertCell(1);
+    var driver = row.insertCell(2);
+    var other = row.insertCell(3);
+    time.innerHTML = timeConvertS(data.m_header.m_sessionTime);
+    switch (data.m_eventStringCode) {
+      case "SSTA":
+        eventCode.innerHTML = "Session Start";
+        break;
+      case "SEND":
+        eventCode.innerHTML = "Session End";
+        break;
+      case "FTLP":
+        eventCode.innerHTML = "Fastest Lap";
+        console.log(data.m_eventDetails.vehicleIdx)
+        break;
+      case "RTMT":
+        eventCode.innerHTML = "Retirement";
+        driver.innerHTML = driverNames[data.Retirement.vehicleIdx];
+        break;
+      case "DRSE":
+        eventCode.innerHTML = "DRS Enabled";
+        break;
+      case "DRSD":
+        eventCode.innerHTML = "DRS Disabled";
+        break;
+      case "CHQF":
+        eventCode.innerHTML = "Chequered Flag";
+        break;
+      case "RCWN":
+        eventCode.innerHTML = "Race Winner";
+        driver.innerHTML = driverNames[data.RaceWinner.vehicleIdx];
+        break;
+      case "PENA":
+        eventCode.innerHTML = "Penatly"
+        break;
+      case "SPTP":
+        eventCode.innerHTML = "Speed Trap Triggered";
+        console.log(data.SpeedTrap.vehicleIdx);
+        driver.innerHTML = driverNames[data.SpeedTrap.vehicleIdx];
+        other.innerHTML = Math.round(data.SpeedTrap.speed) + " kmph";
+        break;
+      case "STLG":
+        eventCode.innerHTML = "Starting Lights";
+        other.innerHTML = data.StartLIghts.numLights;
+        break;
+      case "LGOT":
+        eventCode.innerHTML = "Lights Out";
+        break;
+      case "DTSV":
+        eventCode.innerHTML = "Drive Through Served";
+        driver.innerHTML = driverNames[data.DriveThroughPenaltyServed.vehicleIdx];
+        break;
+      case "SGSV":
+        eventCode.innerHTML = "Stop Go Served";
+        driver.innerHTML = driverNames[data.StopGoPenaltyServed.vehicleIdx];
+        break;
+    }
+  }
+}
+
+
+
 /**
  * @name sortTable
  * @description sorts the table by the position column
@@ -135,4 +219,28 @@ function sortTable() {
  */
 function isNum(val) {
   return !isNaN(val)
+}
+/**
+ * 
+ * @param {int} time 
+ * @returns 
+ */
+function timeConvertMS(time){
+  var seconds = Math.floor(time / 1000);
+  var minutes = Math.floor(seconds / 60);
+  var mSeconds = time % 60;
+  if (seconds > 60){
+      var seconds = seconds -60;
+  }  
+  return minutes + ":"+ seconds + "." + mSeconds.toPrecision(2); 
+}
+
+function timeConvertS(time){
+  var minutes = Math.floor(time / 60);
+  var seconds = time-(minutes*60);
+  var mSeconds = seconds / 60;
+  if (seconds < 10){
+      var seconds = "0"+seconds;
+  }
+  return minutes + ":"+ Math.round(seconds) + "." + mSeconds.toPrecision(2)*100; 
 }
