@@ -1,18 +1,37 @@
 {
   "name": "f1-tele",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "description": "F1-Tele utilizes the UMD Telemetry from F1 2021 and displays it in an easy to read format. Includes options for a race director to view all times and telemetry and an option for individual drivers to be their own race engineer.",
+  "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "start": "electron ./src/main.js"
   },
-  "author": "Emerson Shatouhy, Andrew Rousch, Ian Wright",
+  "author": {
+    "name": "Emerson Shatouhy",
+    "url": "https://github.com/Emerson-Shatouhy"
+  },
+  "contributors": [
+    {
+      "name": "Emerson Shatouhy",
+      "url": "https://github.com/Emerson-Shatouhy"
+    },
+    {
+      "name": "Andrew Roush",
+      "url": "https://github.com/AndrewR15"
+    },
+    {
+      "name": "Ian Wright",
+      "url": "https://github.com/Landaman"
+    }
+  ],
   "license": "ISC",
   "devDependencies": {
-    "electron": "^16.0.7"
+    "electron": "^16.0.7",
+    "jest": "^27.4.7"
   },
   "dependencies": {
-    "f1-2021-udp": "^1.12.12"
+    "f1-2021-udp": "^1.12.5",
+    "electron": "^16.0.7"
   }
 }
